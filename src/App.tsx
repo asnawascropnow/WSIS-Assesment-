@@ -8,7 +8,7 @@ import {
   ShieldCheck,
   UploadCloud,
 } from 'lucide-react'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import type { CSSProperties } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { z } from 'zod'
@@ -116,48 +116,7 @@ function App() {
   const [completedSections, setCompletedSections] = useState<Set<number>>(() => new Set())
   const [saveStatus, setSaveStatus] = useState<'saved' | 'saving' | 'error'>('saved')
   const [submitError, setSubmitError] = useState('')
-  const backgroundVideoRef = useRef<HTMLVideoElement>(null)
-
   const currentSection = questionnaire.sections[currentSectionIndex]
-
-  const renderBackgroundVideo = (src = '/ocean-background.mp4') => (
-    <div className="ocean-atmosphere" aria-hidden="true">
-      <video
-        ref={backgroundVideoRef}
-        className="ocean-video"
-        autoPlay
-        muted
-        loop
-        playsInline
-        preload="metadata"
-        onError={(event) => console.error('Ocean background video failed to load.', event.currentTarget.error)}
-      >
-        <source src={src} type="video/mp4" />
-      </video>
-    </div>
-  )
-
-  useEffect(() => {
-    const video = backgroundVideoRef.current
-    if (!video) return
-
-    const motionPreference = window.matchMedia('(prefers-reduced-motion: reduce)')
-    const syncPlayback = () => {
-      if (motionPreference.matches) {
-        video.pause()
-        return
-      }
-
-      video.playbackRate = 0.55
-      void video.play().catch((error: unknown) => {
-        console.error('Unable to autoplay the ocean background video.', error)
-      })
-    }
-
-    syncPlayback()
-    motionPreference.addEventListener('change', syncPlayback)
-    return () => motionPreference.removeEventListener('change', syncPlayback)
-  }, [view])
 
   useEffect(() => {
     const timeout = window.setTimeout(() => {
@@ -428,7 +387,6 @@ function App() {
         {question.question}
       </label>
       <div className="example-box">
-        <span className="example-label">Example from the assessment template</span>
         <p>{question.example}</p>
       </div>
       {renderQuestionInput(section, question)}
@@ -440,7 +398,6 @@ function App() {
 
   const renderWizard = () => (
     <div className="app-shell">
-      {renderBackgroundVideo()}
       <aside className="sidebar">
         <div className="brand-box">
           <img className="brand-logo" src="/akashbhumi-logo.png" alt="Akash Bhumi" />
@@ -588,7 +545,6 @@ function App() {
 
   const renderWelcome = () => (
     <section className="welcome-screen">
-      {renderBackgroundVideo('/welcome-background.mp4')}
       <div className="welcome-card">
         <div className="welcome-badge initiative-badge">
           <img className="initiative-logo" src="/akashbhumi-logo.png" alt="Akash Bhumi" />
@@ -618,7 +574,6 @@ function App() {
 
   const renderSuccess = () => (
     <section className="welcome-screen">
-      {renderBackgroundVideo()}
       <div className="welcome-card success-card">
         <div className="welcome-badge success-badge">
           <CheckCircle2 size={18} />
