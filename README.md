@@ -35,16 +35,32 @@ See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rule
 
 The browser client reads `VITE_SUPABASE_URL` and
 `VITE_SUPABASE_PUBLISHABLE_KEY` from the environment. Copy `.env.example` to
-`.env.local` for local development and add your Supabase publishable key.
-Publishable keys are intended for client apps; never use a secret or service-role
-key in this frontend.
+`.env.local` for local development. Publishable keys are intended for client
+apps; never use a secret or service-role key in frontend code.
 
-Run [`supabase/schema.sql`](./supabase/schema.sql) in the Supabase SQL Editor to
-create separate `university_assessments`, `industry_assessments`, and
-`organization_assessments` tables, enable insert-only row-level security, and
-create one private attachment bucket for each category. The script also copies
-records from the previous combined `assessments` table when it exists, and
-revokes public access to that legacy table without deleting it.
+Submissions are sent through the Vercel Edge Function at `/api/submissions`.
+It validates all questionnaire answers and attachment references before using
+`@supabase/server`'s server-only admin client to insert the record. The
+publishable key is checked at the API boundary; file uploads continue to use
+the browser's publishable client.
+
+Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` in Vercel for the
+browser, plus `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, and
+`SUPABASE_SECRET_KEY` for the server function. The secret key must be a newly
+rotated value because the previously shared key was exposed. Store it only as
+the server-side `SUPABASE_SECRET_KEY`; never use a `VITE_` prefix. `npm run dev`
+uses the same API handler locally and requires these server variables in
+`.env.local`. The `SUPABASE_JWKS_URL` is not needed until endpoints validate
+user JWTs.
+
+Run the updated [`supabase/schema.sql`](./supabase/schema.sql) in the Supabase
+SQL Editor. It removes direct table insert access from `anon` and
+`authenticated` and grants insert access to `service_role` only, so production
+submissions must pass through the validated server endpoint. The Supabase
+server package requires Node.js 22 or later. The script creates the three
+category tables and private attachment buckets, copies compatible records from
+the legacy `assessments` table when present, and revokes public access to that
+legacy table without deleting it.
 
 All questions and table cells must be completed. Use `-`, `none`, or `nil` when a
 value is not applicable or unavailable; file questions can instead be marked as

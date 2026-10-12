@@ -92,66 +92,18 @@ alter table public.university_assessments enable row level security;
 alter table public.industry_assessments enable row level security;
 alter table public.organization_assessments enable row level security;
 
-revoke all on table public.university_assessments from public, anon, authenticated;
-revoke all on table public.industry_assessments from public, anon, authenticated;
-revoke all on table public.organization_assessments from public, anon, authenticated;
-grant insert on table public.university_assessments to anon, authenticated;
-grant insert on table public.industry_assessments to anon, authenticated;
-grant insert on table public.organization_assessments to anon, authenticated;
+revoke all on table public.university_assessments from public, anon, authenticated, service_role;
+revoke all on table public.industry_assessments from public, anon, authenticated, service_role;
+revoke all on table public.organization_assessments from public, anon, authenticated, service_role;
+grant insert on table public.university_assessments to service_role;
+grant insert on table public.industry_assessments to service_role;
+grant insert on table public.organization_assessments to service_role;
 
 drop policy if exists "Public can submit university assessments" on public.university_assessments;
-create policy "Public can submit university assessments"
-  on public.university_assessments for insert to anon, authenticated
-  with check (
-    schema_version = 1
-    and questionnaire_version = 'university-1.1'
-    and (select count(*) from jsonb_object_keys(answers)) = 9
-    and not exists (
-      select 1
-      from jsonb_array_elements(attachments) as attachment(value)
-      where value->>'bucket_id' <> 'university-assessment-files'
-        or value->>'storage_path' !~ ('^' || id::text || '/[^/]+$')
-        or value->>'section_id' is null
-        or value->>'question_id' is null
-        or value->>'file_name' is null
-    )
-  );
 
 drop policy if exists "Public can submit industry assessments" on public.industry_assessments;
-create policy "Public can submit industry assessments"
-  on public.industry_assessments for insert to anon, authenticated
-  with check (
-    schema_version = 1
-    and questionnaire_version = 'industrial-1.1'
-    and (select count(*) from jsonb_object_keys(answers)) = 12
-    and not exists (
-      select 1
-      from jsonb_array_elements(attachments) as attachment(value)
-      where value->>'bucket_id' <> 'industry-assessment-files'
-        or value->>'storage_path' !~ ('^' || id::text || '/[^/]+$')
-        or value->>'section_id' is null
-        or value->>'question_id' is null
-        or value->>'file_name' is null
-    )
-  );
 
 drop policy if exists "Public can submit organization assessments" on public.organization_assessments;
-create policy "Public can submit organization assessments"
-  on public.organization_assessments for insert to anon, authenticated
-  with check (
-    schema_version = 1
-    and questionnaire_version = 'organization-1.1'
-    and (select count(*) from jsonb_object_keys(answers)) = 12
-    and not exists (
-      select 1
-      from jsonb_array_elements(attachments) as attachment(value)
-      where value->>'bucket_id' <> 'organization-assessment-files'
-        or value->>'storage_path' !~ ('^' || id::text || '/[^/]+$')
-        or value->>'section_id' is null
-        or value->>'question_id' is null
-        or value->>'file_name' is null
-    )
-  );
 
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
 values

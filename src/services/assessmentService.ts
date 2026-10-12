@@ -119,12 +119,7 @@ export async function submitAssessment(assessment: AssessmentPayload) {
       if (error) throw error
     }
 
-    const tableByType = {
-      university: 'university_assessments',
-      industry: 'industry_assessments',
-      organization: 'organization_assessments',
-    } satisfies Record<AssessmentType, string>
-    const { error } = await supabase.from(tableByType[assessment.assessmentType]).insert({
+    const submission = {
       id: assessmentId,
       schema_version: assessment.schemaVersion,
       questionnaire_version: assessment.questionnaireVersion,
@@ -132,8 +127,29 @@ export async function submitAssessment(assessment: AssessmentPayload) {
       answers,
       attachments: uploads.map(({ attachment }) => attachment),
       metadata: assessment.metadata,
+    }
+
+    const publishableKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY
+    if (!publishableKey) {
+      throw new Error('Supabase publishable key is not configured.')
+    }
+    const response = await fetch('/api/submissions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        apikey: publishableKey,
+      },
+      body: JSON.stringify({
+        assessmentType: assessment.assessmentType,
+        ...submission,
+      }),
     })
-    if (error) throw error
+    const result = await response.json().catch(() => null) as
+      | { ok?: boolean; assessmentId?: string; error?: string }
+      | null
+    if (!response.ok || !result?.ok || !result.assessmentId) {
+      throw new Error(result?.error ?? `Submission API failed with status ${response.status}.`)
+    }
 
     return { ok: true, assessmentId }
   } catch (error) {
