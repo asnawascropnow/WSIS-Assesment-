@@ -115,6 +115,7 @@ button { color: inherit; }
 }
 .brand-box { padding: 0 0 17px; border-bottom: var(--line); }
 .brand-logo { display: block; width: min(100%, 250px); height: auto; border: var(--line); background: #000; }
+.home-button { width: 100%; margin-top: 12px; }
 .eyebrow { margin: 0; color: #444; font-size: .72rem; font-weight: 900; letter-spacing: .13em; text-transform: uppercase; }
 .progress-panel { margin-top: 18px; padding: 14px; background: var(--paper); border: var(--line); box-shadow: 3px 3px 0 var(--ink); }
 .progress-head { display: flex; justify-content: space-between; align-items: center; font-size: .88rem; font-weight: 800; }
@@ -174,10 +175,12 @@ button { color: inherit; }
 .review-header h2 { margin: 4px 0 0; font-family: 'Manrope', 'DM Sans', sans-serif; font-size: clamp(1.35rem, 2.3vw, 2.15rem); font-weight: 900; letter-spacing: -.05em; line-height: 1.12; }
 .save-indicator { display: inline-flex; align-items: center; gap: 7px; padding: 8px 10px; border: 1.5px solid var(--ink); background: var(--lime); font-size: .78rem; font-weight: 800; white-space: nowrap; }
 .section-intro { max-width: 1040px; margin: 0 auto 18px; padding: 13px 16px; border-left: 5px solid var(--ink); background: #e5e3da; color: #333; font-size: .95rem; line-height: 1.65; }
+.required-guidance { max-width: 1040px; margin: 16px auto; padding: 11px 14px; border: var(--line); background: #fff7d6; font-size: .9rem; line-height: 1.5; }
 .questions-stack { display: grid; gap: 16px; max-width: 1040px; margin: 0 auto; }
 .question-card { padding: 20px; border: var(--line); background: var(--paper); box-shadow: 4px 4px 0 var(--ink); transition: box-shadow 140ms ease, transform 140ms ease; }
 .question-card:focus-within { box-shadow: 6px 6px 0 var(--pink); transform: translate(-1px, -1px); }
 .question-label { display: block; margin-bottom: 12px; font-family: 'Manrope', 'DM Sans', sans-serif; font-size: 1.03rem; font-weight: 900; line-height: 1.4; }
+.required-indicator { color: #a0183d; font-weight: 900; }
 .example-box { margin-bottom: 14px; padding: 12px 14px; border: 1.5px solid var(--ink); background: #f1f0e9; }
 .example-label { display: block; margin-bottom: 5px; font-size: .68rem; font-weight: 900; letter-spacing: .09em; text-transform: uppercase; }
 .example-box p { margin: 0; color: #3d3d3d; font-size: .87rem; line-height: 1.6; overflow-wrap: anywhere; }
@@ -196,6 +199,8 @@ textarea { min-height: 112px; resize: vertical; line-height: 1.6; }
 .upload-box { padding: 16px; border: 2px dashed var(--ink); background: #f1f0e9; }
 .upload-box input[type='file'] { width: 100%; color: var(--ink); }
 .upload-meta { display: flex; align-items: center; gap: 8px; margin-top: 10px; font-size: .88rem; font-weight: 700; }
+.upload-file-list { margin: 10px 0; padding-left: 22px; overflow-wrap: anywhere; }
+.upload-na-option { display: flex; align-items: center; gap: 8px; margin-top: 12px; font-weight: 750; }
 .error-text { margin: 9px 0 0; padding: 10px 12px; border: var(--line); background: #ffd1d1; color: #7a1111; font-size: .88rem; font-weight: 800; }
 .nav-actions { max-width: 1040px; margin: 22px auto 0; padding: 14px; border: var(--line); background: var(--paper); box-shadow: var(--shadow); }
 .nav-actions .primary-button { min-width: 150px; }

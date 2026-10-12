@@ -15,7 +15,7 @@ export function QuestionCard({ section, question }: QuestionCardProps) {
   return (
     <div className="question-card">
       <label className="question-label" htmlFor={`${section.id}.${question.id}`}>
-        {question.question}
+        {question.question} <span className="required-indicator" aria-label="required">*</span>
       </label>
       <div className="example-box">
         <p>{question.example}</p>

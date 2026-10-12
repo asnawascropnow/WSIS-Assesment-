@@ -31,26 +31,36 @@ If you are developing a production application, we recommend enabling type-aware
 
 See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
 
-## Deploying to Firebase Hosting
+## Supabase setup
 
-Build the site and deploy it from the project root:
+The browser client reads `VITE_SUPABASE_URL` and
+`VITE_SUPABASE_PUBLISHABLE_KEY` from the environment. Copy `.env.example` to
+`.env.local` for local development and add your Supabase publishable key.
+Publishable keys are intended for client apps; never use a secret or service-role
+key in this frontend.
 
-```sh
-npm run build
-firebase login
-firebase deploy --only hosting
-```
+Run [`supabase/schema.sql`](./supabase/schema.sql) in the Supabase SQL Editor to
+create separate `university_assessments`, `industry_assessments`, and
+`organization_assessments` tables, enable insert-only row-level security, and
+create one private attachment bucket for each category. The script also copies
+records from the previous combined `assessments` table when it exists, and
+revokes public access to that legacy table without deleting it.
 
-Firebase Hosting serves the Vite build from `dist` and rewrites routes to `index.html`.
+All questions and table cells must be completed. Use `-`, `none`, or `nil` when a
+value is not applicable or unavailable; file questions can instead be marked as
+having no attachment. Responses preserve the questionnaire section and question
+IDs in the `answers` JSON column, and each assessment table row stores an
+`attachments` manifest with the original filename, category bucket, storage path,
+question reference, content type, and size.
 
-The Firebase client configuration lives in `src/firebase/`. Submitted assessments
-are written to Firestore's `assessments` collection. Optional image/PDF attachments
-are uploaded to Cloud Storage and referenced by storage path. Before attachments
-can be submitted, initialize the project's Storage bucket in the Firebase Console
-and deploy its rules with `firebase deploy --only storage`.
+Attachments are uploaded under `<assessment-uuid>/<file-uuid>_<original-name>` in
+the matching private bucket. To download them, use the Supabase dashboard's
+Storage browser, open the category bucket and assessment UUID folder, and download
+the file. Each table's `attachments` column identifies which folder/file belongs
+to which question. The public client cannot read submissions or download files;
+admin access and an in-app download/export workflow require a separate
+authenticated admin feature. If a database insert fails after file upload, its
+unreferenced private files may need cleanup from Storage.
 
-Firestore and Storage rules restrict respondents to creating submissions and
-uploading supported attachments. Admin access and Excel export require a separate
-authenticated admin workflow; they are not exposed to public respondents. These
-public create-only rules do not provide rate limiting; use App Check and/or a
-validated server-side submission endpoint to mitigate automated abuse.
+The app is a static Vite site; build it with `npm run build` and publish the
+generated `dist` folder using your hosting provider.

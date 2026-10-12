@@ -61,7 +61,15 @@ export function ReviewView({
                   {visibleEntries.map(([key, value]) => (
                     <div key={key} className="review-row">
                       <dt>{key.replace(/_/g, ' ')}</dt>
-                      <dd>{typeof value === 'object' ? JSON.stringify(value) : String(value)}</dd>
+                      <dd>
+                        {typeof value === 'object'
+                          ? JSON.stringify(value, (_key, nestedValue: unknown) => (
+                            typeof File !== 'undefined' && nestedValue instanceof File
+                              ? nestedValue.name
+                              : nestedValue
+                          ))
+                          : String(value)}
+                      </dd>
                     </div>
                   ))}
                 </dl>

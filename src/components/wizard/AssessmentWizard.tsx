@@ -17,6 +17,7 @@ type AssessmentWizardProps = {
   onPrevious: () => void
   onSaveProgress: () => void
   onNext: () => void
+  onBackToHomepage: () => void
 }
 
 export function AssessmentWizard({
@@ -31,6 +32,7 @@ export function AssessmentWizard({
   onPrevious,
   onSaveProgress,
   onNext,
+  onBackToHomepage,
 }: AssessmentWizardProps) {
   const isLastSection = currentSectionIndex === activeQuestionnaire.sections.length - 1
 
@@ -43,12 +45,17 @@ export function AssessmentWizard({
         completed={completionSummary.completed}
         total={completionSummary.totalSections}
         onSelectSection={onSelectSection}
+        onBackToHomepage={onBackToHomepage}
       />
 
       <main className="main-panel" ref={mainPanelRef}>
         <Topbar title={currentSection.title} saveStatus={saveStatus} />
 
         {currentSection.introduction ? <p className="section-intro">{currentSection.introduction}</p> : null}
+        <p className="required-guidance">
+          Complete every question and table cell. Enter <strong>-</strong>, <strong>none</strong>, or <strong>nil</strong>
+          {' '}when a value is not applicable or unavailable. Attach files or mark file questions not applicable.
+        </p>
 
         <div className="questions-stack">
           {currentSection.questions.map((question) => (

@@ -1,4 +1,5 @@
 import { useFormContext } from 'react-hook-form'
+import { getTableCellKey } from '../../lib/sectionSchema'
 import type { FormValues, QuestionDefinition, QuestionnaireSection } from '../../types'
 
 type TableFieldProps = {
@@ -29,13 +30,7 @@ export function TableField({ section, question }: TableFieldProps) {
               <tr key={row.id}>
                 <td className="row-label">{row.label}</td>
                 {table.columns.slice(1).map((column, index) => {
-                  const cellKey = table.basisOptions && index === 1
-                    ? 'basis'
-                    : table.columns.length === 3 && !table.basisOptions
-                      ? index === 0 ? 'value' : 'details'
-                      : table.columns.length === 2
-                        ? 'value'
-                        : `column_${index}`
+                  const cellKey = getTableCellKey(table, index)
                   const currentValue = tableValue[row.id]?.[cellKey] ?? ''
                   const isBasisCell = Boolean(table.basisOptions) && index === 1
 
@@ -51,6 +46,9 @@ export function TableField({ section, question }: TableFieldProps) {
                           }}
                         >
                           <option value="">Select</option>
+                          <option value="-">-</option>
+                          <option value="none">none</option>
+                          <option value="nil">nil</option>
                           {table.basisOptions.map((option) => (
                             <option key={option} value={option}>
                               {option}

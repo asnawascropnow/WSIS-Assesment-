@@ -24,6 +24,7 @@ function App() {
     handlePrevious,
     handleSubmit,
     resetAssessment,
+    backToHomepage,
     editSection,
     backToForm,
     selectSection,
@@ -61,6 +62,7 @@ function App() {
             onPrevious={handlePrevious}
             onSaveProgress={saveCurrentDraft}
             onNext={handleNext}
+            onBackToHomepage={backToHomepage}
           />
         )
     }
