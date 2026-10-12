@@ -64,7 +64,7 @@ button { color: inherit; }
   text-transform: uppercase;
 }
 .initiative-badge { margin: 0 auto; background: var(--mint); }
-.initiative-logo { width: 54px; height: auto; object-fit: contain; }
+.initiative-logo { width: 54px; height: auto; object-fit: contain; background: #000; }
 .success-badge { background: var(--mint); }
 .welcome-card h1 {
   max-width: 900px;
@@ -80,6 +80,14 @@ button { color: inherit; }
 .welcome-flow { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 10px; margin-top: 28px; font-weight: 800; }
 .flow-arrow { color: #666; }
 .large-button { margin-top: 30px; padding: 16px 24px !important; font-size: 1.05rem !important; }
+.assessment-choices { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; max-width: 1040px; margin: 34px auto 0; }
+.assessment-choice { display: flex; align-items: center; gap: 15px; min-height: 100px; padding: 18px; border: var(--line); background: var(--paper); box-shadow: 4px 4px 0 var(--ink); text-align: left; cursor: pointer; transition: transform 140ms ease, box-shadow 140ms ease, background-color 140ms ease; }
+.assessment-choice:hover { transform: translate(-2px, -2px); box-shadow: 7px 7px 0 var(--ink); background: var(--lime); }
+.assessment-choice:focus-visible { outline: 3px solid #2866cc; outline-offset: 4px; }
+.assessment-choice-icon { display: grid; flex: 0 0 48px; width: 48px; height: 48px; place-items: center; border: 1.5px solid var(--ink); background: var(--mint); }
+.assessment-choice-copy { display: grid; flex: 1; gap: 4px; }
+.assessment-choice-copy strong { font-family: 'Manrope', 'DM Sans', sans-serif; font-size: 1.12rem; font-weight: 900; }
+.assessment-choice-copy > span { color: #444; font-size: .84rem; line-height: 1.45; }
 
 .app-shell {
   display: grid;
@@ -106,7 +114,7 @@ button { color: inherit; }
   border-right: var(--line);
 }
 .brand-box { padding: 0 0 17px; border-bottom: var(--line); }
-.brand-logo { display: block; width: min(100%, 250px); height: auto; border: var(--line); background: white; }
+.brand-logo { display: block; width: min(100%, 250px); height: auto; border: var(--line); background: #000; }
 .eyebrow { margin: 0; color: #444; font-size: .72rem; font-weight: 900; letter-spacing: .13em; text-transform: uppercase; }
 .progress-panel { margin-top: 18px; padding: 14px; background: var(--paper); border: var(--line); box-shadow: 3px 3px 0 var(--ink); }
 .progress-head { display: flex; justify-content: space-between; align-items: center; font-size: .88rem; font-weight: 800; }
@@ -216,6 +224,7 @@ textarea { min-height: 112px; resize: vertical; line-height: 1.6; }
 input:focus-visible, textarea:focus-visible, select:focus-visible { border-color: var(--ink); box-shadow: 3px 3px 0 var(--pink); }
 
 @media (max-width: 900px) {
+  .assessment-choices { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .app-shell { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); }
   .sidebar { height: auto; max-height: 30dvh; padding: 12px 14px; border-right: 0; border-bottom: var(--line); }
   .brand-box { padding-bottom: 9px; }
@@ -233,6 +242,8 @@ input:focus-visible, textarea:focus-visible, select:focus-visible { border-color
   .initiative-badge { font-size: .68rem; }
   .initiative-logo { width: 40px; }
   .welcome-flow { gap: 7px; font-size: .84rem; }
+  .assessment-choices { grid-template-columns: 1fr; gap: 12px; margin-top: 26px; }
+  .assessment-choice { min-height: 84px; padding: 14px; }
   .app-shell { grid-template-rows: auto minmax(0, 1fr); }
   .sidebar { max-height: 34dvh; }
   .main-panel { padding: 16px 14px 28px; }

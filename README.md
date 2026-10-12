@@ -30,3 +30,27 @@ If you are developing a production application, we recommend enabling type-aware
 ```
 
 See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+
+## Deploying to Firebase Hosting
+
+Build the site and deploy it from the project root:
+
+```sh
+npm run build
+firebase login
+firebase deploy --only hosting
+```
+
+Firebase Hosting serves the Vite build from `dist` and rewrites routes to `index.html`.
+
+The Firebase client configuration lives in `src/firebase/`. Submitted assessments
+are written to Firestore's `assessments` collection. Optional image/PDF attachments
+are uploaded to Cloud Storage and referenced by storage path. Before attachments
+can be submitted, initialize the project's Storage bucket in the Firebase Console
+and deploy its rules with `firebase deploy --only storage`.
+
+Firestore and Storage rules restrict respondents to creating submissions and
+uploading supported attachments. Admin access and Excel export require a separate
+authenticated admin workflow; they are not exposed to public respondents. These
+public create-only rules do not provide rate limiting; use App Check and/or a
+validated server-side submission endpoint to mitigate automated abuse.

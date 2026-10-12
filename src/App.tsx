@@ -4,15 +4,20 @@ import {
   CheckCircle2,
   Circle,
   CircleDashed,
+  Building2,
+  Factory,
+  GraduationCap,
   Save,
   ShieldCheck,
   UploadCloud,
 } from 'lucide-react'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import type { CSSProperties } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { z } from 'zod'
-import { questionnaire, type QuestionDefinition, type QuestionnaireSection } from './data/waterAssessmentQuestionnaire'
+import { industrialQuestionnaire } from './data/industrialWaterAssessmentQuestionnaire'
+import { organizationQuestionnaire } from './data/organizationWaterAssessmentQuestionnaire'
+import { questionnaire as universityQuestionnaire, type QuestionDefinition, type QuestionnaireSection } from './data/waterAssessmentQuestionnaire'
 import { clearDraft, loadDraft, saveDraft } from './lib/draftService'
 import { submitAssessment } from './services/assessmentService'
 
@@ -20,11 +25,10 @@ type SectionValues = Record<string, any>
 
 type FormValues = Record<string, any>
 
-const defaultSectionValues = Object.fromEntries(
-  questionnaire.sections.map((section) => [section.id, {}]),
-) as Record<string, SectionValues>
+const createDefaultSectionValues = (sections: QuestionnaireSection[]) =>
+  Object.fromEntries(sections.map((section) => [section.id, {}])) as Record<string, SectionValues>
 
-const makeSectionSchema = (sectionId: string) => {
+const makeSectionSchema = (section: QuestionnaireSection) => {
   const general: Record<string, z.ZodTypeAny> = {
     institution_name: z.string().optional(),
     campus_address: z.string().optional(),
@@ -101,11 +105,45 @@ const makeSectionSchema = (sectionId: string) => {
     annexure_site_photographs: z.object(annexure).passthrough(),
   }
 
-  return schemas[sectionId] ?? z.object({}).passthrough()
+  if (schemas[section.id]) return schemas[section.id]
+
+  const fields = Object.fromEntries(
+    section.questions.map((question) => {
+      if (question.inputType === 'table' || question.inputType === 'file') {
+        return [question.id, z.any().optional()]
+      }
+
+      if (question.inputType === 'number') {
+        return [
+          question.id,
+          z.string().regex(/^\d*\.?\d*$/, 'Enter a non-negative number.').optional().or(z.literal('')),
+        ]
+      }
+
+      if (question.inputType === 'email') {
+        return [question.id, z.string().email('Enter a valid email address.').optional().or(z.literal(''))]
+      }
+
+      if (question.inputType === 'url') {
+        return [question.id, z.string().url('Enter a valid URL.').optional().or(z.literal(''))]
+      }
+
+      return [question.id, z.string().optional()]
+    }),
+  )
+
+  return z.object(fields).passthrough()
 }
 
 function App() {
-  const savedDraft = loadDraft() as FormValues
+  const [assessmentType, setAssessmentType] = useState<'university' | 'industry' | 'organization'>('university')
+  const activeQuestionnaire = assessmentType === 'industry'
+    ? industrialQuestionnaire
+    : assessmentType === 'organization'
+      ? organizationQuestionnaire
+      : universityQuestionnaire
+  const defaultSectionValues = createDefaultSectionValues(activeQuestionnaire.sections)
+  const savedDraft = loadDraft(assessmentType) as FormValues
   const form = useForm<FormValues>({
     defaultValues: { ...defaultSectionValues, ...savedDraft },
     mode: 'onBlur',
@@ -116,26 +154,39 @@ function App() {
   const [completedSections, setCompletedSections] = useState<Set<number>>(() => new Set())
   const [saveStatus, setSaveStatus] = useState<'saved' | 'saving' | 'error'>('saved')
   const [submitError, setSubmitError] = useState('')
-  const currentSection = questionnaire.sections[currentSectionIndex]
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const mainPanelRef = useRef<HTMLElement>(null)
+  const currentSection = activeQuestionnaire.sections[currentSectionIndex]
+
+  const scrollFormToTop = () => {
+    mainPanelRef.current?.scrollTo({ top: 0, behavior: 'smooth' })
+  }
 
   useEffect(() => {
-    const timeout = window.setTimeout(() => {
-      const values = form.getValues()
-      saveDraft(values)
-      setSaveStatus('saved')
-    }, 400)
+    let timeout: number | undefined
+    const subscription = form.watch(() => {
+      setSaveStatus('saving')
+      window.clearTimeout(timeout)
+      timeout = window.setTimeout(() => {
+        saveDraft(form.getValues(), assessmentType)
+        setSaveStatus('saved')
+      }, 400)
+    })
 
-    return () => window.clearTimeout(timeout)
-  }, [form.watch('general_information'), form.watch('student_staff_population'), form.watch('water_supply'), form.watch('sanitation_wastewater'), form.watch('cafeteria'), form.watch('ground_research_findings'), form.watch('conclusion'), form.watch('disclaimer'), form.watch('annexure_site_photographs')])
+    return () => {
+      window.clearTimeout(timeout)
+      subscription.unsubscribe()
+    }
+  }, [assessmentType, form])
 
   const completionSummary = useMemo(() => {
-    const totalSections = questionnaire.sections.length
+    const totalSections = activeQuestionnaire.sections.length
     return { totalSections, completed: completedSections.size }
-  }, [completedSections])
+  }, [activeQuestionnaire.sections.length, completedSections])
 
   const validateCurrentSection = () => {
     const sectionValues = form.getValues()[currentSection.id] ?? {}
-    const schema = makeSectionSchema(currentSection.id)
+    const schema = makeSectionSchema(currentSection)
     const parsed = schema.safeParse(sectionValues)
 
     if (!parsed.success) {
@@ -162,38 +213,101 @@ function App() {
 
   const saveCurrentDraft = () => {
     setSaveStatus('saving')
-    saveDraft(form.getValues())
+    saveDraft(form.getValues(), assessmentType)
     setSaveStatus('saved')
+  }
+
+  const startAssessment = (type: 'university' | 'industry' | 'organization') => {
+    const selectedQuestionnaire = type === 'industry'
+      ? industrialQuestionnaire
+      : type === 'organization'
+        ? organizationQuestionnaire
+        : universityQuestionnaire
+    const defaults = createDefaultSectionValues(selectedQuestionnaire.sections)
+    const draft = loadDraft(type) as FormValues
+    form.reset({ ...defaults, ...draft })
+    setAssessmentType(type)
+    setCurrentSectionIndex(0)
+    setCompletedSections(new Set())
+    setSubmitError('')
+    setView('wizard')
   }
 
   const handleNext = () => {
     if (!validateCurrentSection()) return
-    if (currentSectionIndex < questionnaire.sections.length - 1) {
+    if (currentSectionIndex < activeQuestionnaire.sections.length - 1) {
       saveCurrentDraft()
       setCompletedSections((sections) => new Set(sections).add(currentSectionIndex))
       setCurrentSectionIndex((index) => index + 1)
-      window.scrollTo({ top: 0, behavior: 'smooth' })
+      scrollFormToTop()
     } else {
+      if (!validateAllSections()) return
       setCompletedSections((sections) => new Set(sections).add(currentSectionIndex))
       setView('review')
     }
   }
 
+  const validateAllSections = () => {
+    form.clearErrors()
+    for (const [sectionIndex, section] of activeQuestionnaire.sections.entries()) {
+      const sectionValues = form.getValues()[section.id] ?? {}
+      const parsed = makeSectionSchema(section).safeParse(sectionValues)
+      const requiredQuestion = section.questions.find((question) => {
+        if (!question.required) return false
+        const value = sectionValues[question.id]
+        if (typeof value === 'string') return value.trim().length === 0
+        if (Array.isArray(value)) return value.length === 0
+        return value === undefined || value === null || value === ''
+      })
+
+      if (!parsed.success || requiredQuestion) {
+        const firstIssue = parsed.success ? undefined : parsed.error.issues[0]
+        const questionId = requiredQuestion?.id ?? firstIssue?.path[0]
+        if (questionId) {
+          form.setError(`${section.id}.${String(questionId)}` as never, {
+            type: requiredQuestion ? 'required' : 'manual',
+            message: requiredQuestion ? 'This field is required.' : firstIssue?.message ?? 'Check this answer.',
+          })
+        }
+        setCurrentSectionIndex(sectionIndex)
+        setView('wizard')
+        setSubmitError('Please fix the highlighted answer before submitting.')
+        scrollFormToTop()
+        return false
+      }
+    }
+    return true
+  }
+
   const handlePrevious = () => {
     if (currentSectionIndex > 0) {
       setCurrentSectionIndex((index) => index - 1)
-      window.scrollTo({ top: 0, behavior: 'smooth' })
+      scrollFormToTop()
     }
   }
 
   const handleSubmit = async () => {
+    if (isSubmitting) return
     setSubmitError('')
+    if (!validateAllSections()) return
+    setIsSubmitting(true)
     const values = form.getValues()
+    const institutionName = String(
+      (values.general_information as Record<string, unknown> | undefined)?.institution_name ??
+      (values.industry_general_information as Record<string, unknown> | undefined)?.organisation_name ??
+      (values.organization_general_information as Record<string, unknown> | undefined)?.organization_name ??
+      '',
+    )
     const result = await submitAssessment({
       schemaVersion: 1,
+      assessmentType,
       status: 'submitted',
-      institutionName: String((values.general_information as Record<string, unknown>)?.institution_name ?? ''),
-      questionnaireVersion: '1.0',
+      institutionName,
+      questionnaireVersion: assessmentType === 'industry'
+        ? 'industrial-1.0'
+        : assessmentType === 'organization'
+          ? 'organization-1.0'
+          : 'university-1.0',
       answers: values,
       metadata: {
         createdBy: null,
@@ -206,10 +320,12 @@ function App() {
 
     if (!result.ok) {
       setSubmitError(result.error ?? 'Submission failed. Please retry.')
+      setIsSubmitting(false)
       return
     }
 
-    clearDraft()
+    clearDraft(assessmentType)
+    setIsSubmitting(false)
     setView('success')
   }
 
@@ -235,9 +351,15 @@ function App() {
                 <tr key={row.id}>
                   <td className="row-label">{row.label}</td>
                   {table.columns.slice(1).map((column, index) => {
-                    const cellKey = index === 0 ? 'count' : 'basis'
+                    const cellKey = table.basisOptions && index === 1
+                      ? 'basis'
+                      : table.columns.length === 3 && !table.basisOptions
+                        ? index === 0 ? 'value' : 'details'
+                        : table.columns.length === 2
+                          ? 'value'
+                          : `column_${index}`
                     const currentValue = tableValue[row.id]?.[cellKey] ?? ''
-                    const isBasisCell = table.columns.length > 2 && index === 1
+                    const isBasisCell = Boolean(table.basisOptions) && index === 1
 
                     if (isBasisCell && table.basisOptions) {
                       return (
@@ -355,7 +477,7 @@ function App() {
               id={fieldPath}
               type="file"
               multiple
-              accept="image/*,.pdf"
+              accept="image/jpeg,image/png,image/webp,application/pdf"
               onChange={(event) => {
                 const files = Array.from(event.target.files ?? [])
                 form.setValue(fieldPath as any, files as any)
@@ -419,10 +541,10 @@ function App() {
           aria-label="Questionnaire sections"
           className="section-nav"
           style={{
-            '--step-progress': `${(currentSectionIndex / Math.max(questionnaire.sections.length - 1, 1)) * 100}%`,
+            '--step-progress': `${(currentSectionIndex / Math.max(activeQuestionnaire.sections.length - 1, 1)) * 100}%`,
           } as CSSProperties}
         >
-          {questionnaire.sections.map((section, index) => {
+          {activeQuestionnaire.sections.map((section, index) => {
             const isActive = index === currentSectionIndex
             const isDone = completedSections.has(index)
             return (
@@ -430,7 +552,10 @@ function App() {
                 key={section.id}
                 type="button"
                 className={`section-link ${isActive ? 'active' : ''} ${isDone ? 'done' : ''}`}
-                onClick={() => setCurrentSectionIndex(index)}
+                onClick={() => {
+                  setCurrentSectionIndex(index)
+                  scrollFormToTop()
+                }}
                 aria-current={isActive ? 'step' : undefined}
                 aria-label={`${section.title}${isDone ? ', completed' : isActive ? ', current step' : ''}`}
               >
@@ -444,7 +569,7 @@ function App() {
         </nav>
       </aside>
 
-      <main className="main-panel">
+      <main className="main-panel" ref={mainPanelRef}>
         <header className="topbar">
           <div>
             <p className="eyebrow">Assessment form</p>
@@ -472,7 +597,7 @@ function App() {
             Save Progress
           </button>
           <button type="button" className="primary-button" onClick={handleNext}>
-            {currentSectionIndex === questionnaire.sections.length - 1 ? 'Review & Submit' : 'Next'}
+            {currentSectionIndex === activeQuestionnaire.sections.length - 1 ? 'Review & Submit' : 'Next'}
             <ArrowRight size={16} />
           </button>
         </div>
@@ -494,7 +619,7 @@ function App() {
           </div>
         </div>
 
-        {questionnaire.sections.map((section) => {
+        {activeQuestionnaire.sections.map((section) => {
           const values = form.getValues()[section.id] ?? {}
           const visibleEntries = Object.entries(values).filter(([, value]) => {
             if (typeof value === 'string') return value.trim().length > 0
@@ -507,7 +632,15 @@ function App() {
             <div className="review-section" key={section.id}>
               <div className="review-section-head">
                 <h3>{section.title}</h3>
-                <button type="button" className="mini-button" onClick={() => setCurrentSectionIndex(questionnaire.sections.findIndex((item) => item.id === section.id))}>
+                <button
+                  type="button"
+                  className="mini-button"
+                  onClick={() => {
+                    setCurrentSectionIndex(activeQuestionnaire.sections.findIndex((item) => item.id === section.id))
+                    setView('wizard')
+                    scrollFormToTop()
+                  }}
+                >
                   Edit section
                 </button>
               </div>
@@ -530,12 +663,12 @@ function App() {
         {submitError ? <p className="error-text">{submitError}</p> : null}
 
         <div className="nav-actions">
-          <button type="button" className="secondary-button" onClick={() => setView('wizard')}>
+          <button type="button" className="secondary-button" onClick={() => setView('wizard')} disabled={isSubmitting}>
             <ArrowLeft size={16} />
             Back to form
           </button>
-          <button type="button" className="primary-button" onClick={handleSubmit}>
-            Submit Assessment
+          <button type="button" className="primary-button" onClick={handleSubmit} disabled={isSubmitting} aria-busy={isSubmitting}>
+            {isSubmitting ? 'Submitting…' : 'Submit Assessment'}
             <ArrowRight size={16} />
           </button>
         </div>
@@ -550,24 +683,52 @@ function App() {
           <img className="initiative-logo" src="/akashbhumi-logo.png" alt="Akash Bhumi" />
           NET ZERO INITIATIVE
         </div>
-        <h1>{questionnaire.title}</h1>
-        <p className="welcome-subtitle">{questionnaire.subtitle}</p>
+        <h1>Water Assessment</h1>
+        <p className="welcome-subtitle">Choose the questionnaire for your organization</p>
         <p className="welcome-copy">
-          This structured assessment captures campus water sourcing, demand, treatment, wastewater reuse, rainwater harvesting, and field observations for institutional sustainability planning and reporting.
+          Choose the assessment that best fits your site. Each questionnaire covers water supply, consumption, treatment, reuse, rainwater and on-site findings.
         </p>
         <div className="welcome-flow">
           <span>Welcome</span>
           <span className="flow-arrow">→</span>
-          <span>Sections 1–5</span>
+          <span>Questionnaire</span>
           <span className="flow-arrow">→</span>
           <span>Review</span>
           <span className="flow-arrow">→</span>
           <span>Submit</span>
         </div>
-        <button type="button" className="primary-button large-button" onClick={() => setView('wizard')}>
-          Start Assessment
-          <ArrowRight size={16} />
-        </button>
+        <div className="assessment-choices" aria-label="Choose an assessment">
+          <button type="button" className="assessment-choice" onClick={() => startAssessment('university')}>
+            <span className="assessment-choice-icon">
+              <GraduationCap size={24} />
+            </span>
+            <span className="assessment-choice-copy">
+              <strong>University</strong>
+              <span>Assess campus water use, sanitation and reuse.</span>
+            </span>
+            <ArrowRight size={19} />
+          </button>
+          <button type="button" className="assessment-choice" onClick={() => startAssessment('industry')}>
+            <span className="assessment-choice-icon">
+              <Factory size={24} />
+            </span>
+            <span className="assessment-choice-copy">
+              <strong>Industries</strong>
+              <span>Assess facility operations, water supply and treatment.</span>
+            </span>
+            <ArrowRight size={19} />
+          </button>
+          <button type="button" className="assessment-choice" onClick={() => startAssessment('organization')}>
+            <span className="assessment-choice-icon">
+              <Building2 size={24} />
+            </span>
+            <span className="assessment-choice-copy">
+              <strong>Organization / Company</strong>
+              <span>Assess office, commercial-site and shared-building water use.</span>
+            </span>
+            <ArrowRight size={19} />
+          </button>
+        </div>
       </div>
     </section>
   )
@@ -581,10 +742,10 @@ function App() {
         </div>
         <h1>Submission confirmed</h1>
         <p className="welcome-copy">
-          Your assessment has been accepted and stored in the configured Firebase-backed workflow. You can continue working from the locally saved draft or create a fresh assessment for a new campus.
+          Your assessment has been accepted and stored in the configured Firebase-backed workflow. You can start another assessment whenever you’re ready.
         </p>
         <button type="button" className="primary-button large-button" onClick={() => {
-          clearDraft()
+          clearDraft(assessmentType)
           form.reset(defaultSectionValues)
           setCompletedSections(new Set())
           setView('welcome')
