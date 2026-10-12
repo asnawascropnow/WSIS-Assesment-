@@ -132,6 +132,7 @@ export function useAssessmentWizard() {
       (values.general_information as Record<string, unknown> | undefined)?.institution_name ??
         (values.industry_general_information as Record<string, unknown> | undefined)?.organisation_name ??
         (values.organization_general_information as Record<string, unknown> | undefined)?.organization_name ??
+        (values.apartment_general_information as Record<string, unknown> | undefined)?.apartment_community_name ??
         '',
     )
     const result = await submitAssessment({

@@ -88,16 +88,49 @@ create table if not exists public.organization_assessments (
   submitted_at timestamptz not null default now()
 );
 
+create table if not exists public.apartment_assessments (
+  id uuid primary key,
+  schema_version integer not null check (schema_version = 1),
+  questionnaire_version text not null check (questionnaire_version in ('apartment-1.0', 'apartment-1.1')),
+  organization_name text not null default '' check (char_length(organization_name) <= 250),
+  answers jsonb not null check (
+    jsonb_typeof(answers) = 'object'
+    and answers ?& array[
+      'apartment_general_information',
+      'apartment_population_activities',
+      'apartment_water_sources_consumption',
+      'apartment_sewage_treatment_reuse',
+      'apartment_rainwater_harvesting',
+      'apartment_landscaping_pools_amenities',
+      'apartment_costs_management_security',
+      'apartment_ground_research_findings',
+      'apartment_conclusion',
+      'apartment_disclaimer',
+      'apartment_annexure'
+    ]
+    and octet_length(answers::text) <= 1048576
+  ),
+  attachments jsonb not null default '[]'::jsonb check (
+    jsonb_typeof(attachments) = 'array'
+    and jsonb_array_length(attachments) <= 100
+  ),
+  metadata jsonb not null default '{}'::jsonb check (jsonb_typeof(metadata) = 'object'),
+  submitted_at timestamptz not null default now()
+);
+
 alter table public.university_assessments enable row level security;
 alter table public.industry_assessments enable row level security;
 alter table public.organization_assessments enable row level security;
+alter table public.apartment_assessments enable row level security;
 
 revoke all on table public.university_assessments from public, anon, authenticated, service_role;
 revoke all on table public.industry_assessments from public, anon, authenticated, service_role;
 revoke all on table public.organization_assessments from public, anon, authenticated, service_role;
+revoke all on table public.apartment_assessments from public, anon, authenticated, service_role;
 grant insert on table public.university_assessments to service_role;
 grant insert on table public.industry_assessments to service_role;
 grant insert on table public.organization_assessments to service_role;
+grant insert on table public.apartment_assessments to service_role;
 
 drop policy if exists "Public can submit university assessments" on public.university_assessments;
 
@@ -105,11 +138,14 @@ drop policy if exists "Public can submit industry assessments" on public.industr
 
 drop policy if exists "Public can submit organization assessments" on public.organization_assessments;
 
+drop policy if exists "Public can submit apartment assessments" on public.apartment_assessments;
+
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
 values
   ('university-assessment-files', 'university-assessment-files', false, 10485760, array['image/jpeg', 'image/png', 'image/webp', 'application/pdf']),
   ('industry-assessment-files', 'industry-assessment-files', false, 10485760, array['image/jpeg', 'image/png', 'image/webp', 'application/pdf']),
-  ('organization-assessment-files', 'organization-assessment-files', false, 10485760, array['image/jpeg', 'image/png', 'image/webp', 'application/pdf'])
+  ('organization-assessment-files', 'organization-assessment-files', false, 10485760, array['image/jpeg', 'image/png', 'image/webp', 'application/pdf']),
+  ('apartment-assessment-files', 'apartment-assessment-files', false, 10485760, array['image/jpeg', 'image/png', 'image/webp', 'application/pdf'])
 on conflict (id) do update set
   public = excluded.public,
   file_size_limit = excluded.file_size_limit,
@@ -139,6 +175,15 @@ create policy "Upload organization assessment files"
   on storage.objects for insert to anon, authenticated
   with check (
     bucket_id = 'organization-assessment-files'
+    and array_length(storage.foldername(name), 1) = 1
+    and (storage.foldername(name))[1] ~ '^[0-9a-fA-F-]{36}$'
+  );
+
+drop policy if exists "Upload apartment assessment files" on storage.objects;
+create policy "Upload apartment assessment files"
+  on storage.objects for insert to anon, authenticated
+  with check (
+    bucket_id = 'apartment-assessment-files'
     and array_length(storage.foldername(name), 1) = 1
     and (storage.foldername(name))[1] ~ '^[0-9a-fA-F-]{36}$'
   );

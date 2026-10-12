@@ -1,4 +1,4 @@
-import { ArrowRight, Building2, Factory, GraduationCap, type LucideIcon } from 'lucide-react'
+import { ArrowRight, Building2, Factory, GraduationCap, Home, type LucideIcon } from 'lucide-react'
 import type { AssessmentType } from '../../types'
 
 type AssessmentChoice = {
@@ -26,6 +26,12 @@ const assessmentChoices: AssessmentChoice[] = [
     title: 'Organization / Company',
     description: 'Assess office, commercial-site and shared-building water use.',
     icon: Building2,
+  },
+  {
+    type: 'apartment',
+    title: 'Apartment / Vilas',
+    description: 'Assess residential community, shared amenities and wastewater reuse.',
+    icon: Home,
   },
 ]
 

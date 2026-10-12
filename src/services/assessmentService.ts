@@ -87,6 +87,7 @@ export async function submitAssessment(assessment: AssessmentPayload) {
       university: 'university-assessment-files',
       industry: 'industry-assessment-files',
       organization: 'organization-assessment-files',
+      apartment: 'apartment-assessment-files',
     } satisfies Record<AssessmentType, string>
     const bucketId = bucketByType[assessment.assessmentType]
     const answers = Object.fromEntries(

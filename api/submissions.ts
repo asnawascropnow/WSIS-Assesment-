@@ -12,12 +12,14 @@ const tableByType = {
   university: 'university_assessments',
   industry: 'industry_assessments',
   organization: 'organization_assessments',
+  apartment: 'apartment_assessments',
 } satisfies Record<AssessmentType, string>
 
 const bucketByType = {
   university: 'university-assessment-files',
   industry: 'industry-assessment-files',
   organization: 'organization-assessment-files',
+  apartment: 'apartment-assessment-files',
 } satisfies Record<AssessmentType, string>
 
 type JsonRecord = Record<string, unknown>
@@ -81,7 +83,8 @@ function validatePayload(payload: unknown): { assessmentType: AssessmentType; ro
   if (
     assessmentType !== 'university' &&
     assessmentType !== 'industry' &&
-    assessmentType !== 'organization'
+    assessmentType !== 'organization' &&
+    assessmentType !== 'apartment'
   ) {
     return
   }

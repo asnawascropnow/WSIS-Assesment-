@@ -43,4 +43,4 @@ export type Questionnaire = {
   sections: QuestionnaireSection[]
 }
 
-export type AssessmentType = 'university' | 'industry' | 'organization'
+export type AssessmentType = 'university' | 'industry' | 'organization' | 'apartment'
