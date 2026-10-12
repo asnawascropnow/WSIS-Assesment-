@@ -1,9 +1,10 @@
 import { collection, doc, serverTimestamp, setDoc } from 'firebase/firestore'
 import { deleteObject, ref, uploadBytes } from 'firebase/storage'
+import { ALLOWED_ATTACHMENT_TYPES, MAX_ATTACHMENT_SIZE_BYTES } from '../constants/assessment'
 import { firestore, storage } from '../firebase/client'
+import type { AssessmentType } from '../types'
 
-const MAX_ATTACHMENT_SIZE = 10 * 1024 * 1024
-const ALLOWED_ATTACHMENT_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp', 'application/pdf'])
+const ALLOWED_ATTACHMENT_TYPE_SET = new Set<string>(ALLOWED_ATTACHMENT_TYPES)
 
 type AssessmentAttachment = {
   sectionId: string
@@ -26,10 +27,10 @@ function serializeAnswer(
   uploads: PendingUpload[],
 ): unknown {
   if (typeof File !== 'undefined' && value instanceof File) {
-    if (!ALLOWED_ATTACHMENT_TYPES.has(value.type)) {
+    if (!ALLOWED_ATTACHMENT_TYPE_SET.has(value.type)) {
       throw new Error(`${value.name} has an unsupported file type.`)
     }
-    if (value.size > MAX_ATTACHMENT_SIZE) {
+    if (value.size > MAX_ATTACHMENT_SIZE_BYTES) {
       throw new Error(`${value.name} is larger than the 10 MB limit.`)
     }
 
@@ -63,7 +64,7 @@ function serializeAnswer(
 
 export type AssessmentPayload = {
   schemaVersion: number
-  assessmentType: 'university' | 'industry' | 'organization'
+  assessmentType: AssessmentType
   status: 'draft' | 'submitted'
   institutionName?: string
   questionnaireVersion: string

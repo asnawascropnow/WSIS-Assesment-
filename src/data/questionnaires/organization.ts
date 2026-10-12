@@ -1,4 +1,4 @@
-import type { QuestionnaireSection } from './waterAssessmentQuestionnaire'
+import type { Questionnaire } from '../../types/questionnaire'
 
 type OrganizationInputType = 'text' | 'textarea' | 'number' | 'email' | 'url' | 'table' | 'file'
 
@@ -21,11 +21,7 @@ const table = (id: string, label: string, columns: string[], rows: string[], exa
   },
 })
 
-export const organizationQuestionnaire: {
-  title: string
-  subtitle: string
-  sections: QuestionnaireSection[]
-} = {
+export const organizationQuestionnaire: Questionnaire = {
   title: 'Organization / Company Water Assessment',
   subtitle: 'Water use, shared facilities and sustainability assessment for organizations and companies',
   sections: [

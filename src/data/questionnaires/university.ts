@@ -1,43 +1,6 @@
-export type InputType =
-  | 'text'
-  | 'textarea'
-  | 'number'
-  | 'email'
-  | 'url'
-  | 'tel'
-  | 'select'
-  | 'radio'
-  | 'checkbox'
-  | 'table'
-  | 'file'
+import type { Questionnaire } from '../../types/questionnaire'
 
-export type TableDefinition = {
-  id: string
-  columns: string[]
-  rows: { id: string; label: string }[]
-  basisOptions?: string[]
-}
-
-export type QuestionDefinition = {
-  id: string
-  question: string
-  example: string
-  inputType: InputType
-  required?: boolean
-  helpText?: string | null
-  options?: string[]
-  tableDefinition?: TableDefinition | null
-  placeholder?: string
-}
-
-export type QuestionnaireSection = {
-  id: string
-  title: string
-  introduction?: string
-  questions: QuestionDefinition[]
-}
-
-export const questionnaire: { title: string; subtitle: string; sections: QuestionnaireSection[] } = {
+export const universityQuestionnaire: Questionnaire = {
   title: 'Water Assessment',
   subtitle: 'Institutional water assessment and campus sustainability review',
   sections: [
@@ -408,4 +371,4 @@ export const questionnaire: { title: string; subtitle: string; sections: Questio
   ],
 }
 
-export const sectionOrder = questionnaire.sections.map((section) => section.id)
+export const sectionOrder = universityQuestionnaire.sections.map((section) => section.id)
