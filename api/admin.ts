@@ -85,7 +85,13 @@ const ROLE_CAPABILITIES: Record<AdminRole, ReadonlySet<Capability>> = {
   ]),
 }
 
-const CLIENT_AUDIT_ACTIONS = new Set(['assessment.viewed', 'document.downloaded', 'export.excel', 'export.zip'])
+const CLIENT_AUDIT_ACTIONS = new Set([
+  'assessment.viewed',
+  'document.downloaded',
+  'export.excel',
+  'export.zip',
+  'export.consolidated',
+])
 const DEFAULT_PAGE_SIZE = 20
 const MAX_PAGE_SIZE = 100
 
@@ -626,7 +632,14 @@ const adminApi = withSupabase({ auth: 'user' }, async (request, ctx) => {
     }
   }
 
-  const action = (request.method === 'POST' ? body.action : url.searchParams.get('action')) as string | undefined
+  // The API action always travels in the query string (?action=...) so the POST
+  // body's own `action` field (e.g. the audited action name for audit.log) can
+  // never shadow it. body.action remains a fallback for callers that send only a
+  // body envelope.
+  const action = (
+    url.searchParams.get('action') ??
+    (request.method === 'POST' ? body.action : undefined)
+  ) as string | undefined
   if (!action) return fail('An action is required.')
 
   const required = REQUIRED_CAPABILITY[action]

@@ -43,7 +43,7 @@ export async function adminApi<T>(action: string, options: ApiOptions = {}): Pro
   const response = await fetch(`/api/admin?${params.toString()}`, {
     method,
     headers,
-    body: method === 'POST' ? JSON.stringify({ action, ...(options.body ?? {}) }) : undefined,
+    body: method === 'POST' ? JSON.stringify(options.body ?? {}) : undefined,
   })
 
   const payload = (await response.json().catch(() => null)) as { data?: T; error?: string } | null
