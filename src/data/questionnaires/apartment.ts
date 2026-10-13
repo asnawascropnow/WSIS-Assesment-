@@ -1,6 +1,6 @@
 import type { Questionnaire } from '../../types/questionnaire'
 
-type ApartmentInputType = 'text' | 'textarea' | 'number' | 'email' | 'url' | 'table' | 'file'
+type ApartmentInputType = 'text' | 'textarea' | 'number' | 'email' | 'url' | 'tel' | 'table' | 'file'
 
 const question = (id: string, label: string, example = '', inputType: ApartmentInputType = 'textarea') => ({
   id,
@@ -33,7 +33,8 @@ export const apartmentQuestionnaire: Questionnaire = {
         question('property_address', 'Property Address', 'Complete postal address, locality, city, state and PIN code. Identify the phase or gate if the community has multiple phases.'),
         question('google_maps_url', 'Google Maps Location URL', 'Provide a direct Google Maps pin or search link to the residential community.', 'url'),
         question('primary_contact_person', 'Primary Contact Person and Designation', 'Name and role of the person coordinating the assessment, such as the association president, secretary, facility manager, estate manager or maintenance supervisor.', 'text'),
-        question('official_contact_details', 'Official Contact Details', 'Provide the association or facility email address, primary phone number and alternate contact number, if available.', 'text'),
+        question('official_email', 'Official Email Address', 'Provide the association or facility email address.', 'email'),
+        question('official_contact_numbers', 'Contact Numbers', 'Primary phone number and alternate contact number, if available.', 'tel'),
         question('property_type_management', 'Property Type and Management Arrangement', 'Specify whether the community is a high-rise apartment, low-rise apartment, villa cluster, row houses or mixed development. State whether it is managed by an owners\' association, builder, facility-management company or another entity.'),
         question('total_site_area_built_up_area', 'Total Site Area and Built-up Area', 'Provide total land area, total built-up area and common-area built-up area if available. For villas, include plot area and built-up area separately.'),
         table(

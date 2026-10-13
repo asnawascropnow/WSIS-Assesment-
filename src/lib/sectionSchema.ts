@@ -8,9 +8,6 @@ import type { SectionValues } from '../types'
 export const NOT_APPLICABLE_VALUES = new Set(['-', 'none', 'nil'])
 export const DRAFT_ATTACHMENT_RESELECT = '__attachment_requires_reselection__'
 
-// University text/textarea answers may only combine alphanumeric characters and spaces with "~".
-export const UNIVERSITY_TEXT_PATTERN = /^[A-Za-z0-9 ~]+$/
-
 export function isValidPhoneNumber(value: string): boolean {
   const segments = value.split('/').map((segment) => segment.trim()).filter(Boolean)
   if (segments.length === 0) return false
@@ -85,10 +82,11 @@ function validateQuestion(
   if (typeof value !== 'string' || NOT_APPLICABLE_VALUES.has(value.trim().toLowerCase())) return
   const normalized = value.trim()
 
-  if (question.inputType === 'number' && !/^(?:\d+(?:\.\d*)?|\.\d+)$/.test(normalized)) {
+  // University only formats its Google Maps URL and contact number; every other answer accepts any characters.
+  if (assessmentType !== 'university' && question.inputType === 'number' && !/^(?:\d+(?:\.\d*)?|\.\d+)$/.test(normalized)) {
     return 'Enter a non-negative number, or use - / none / nil.'
   }
-  if (question.inputType === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalized)) {
+  if (assessmentType !== 'university' && question.inputType === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalized)) {
     return 'Enter a valid email address, or use - / none / nil.'
   }
   if (question.inputType === 'url') {
@@ -100,13 +98,6 @@ function validateQuestion(
   }
   if (question.inputType === 'tel' && !isValidPhoneNumber(normalized)) {
     return 'Enter a valid phone number (7-15 digits, +, -, spaces, parentheses allowed), or use - / none / nil.'
-  }
-  if (
-    assessmentType === 'university' &&
-    (question.inputType === 'text' || question.inputType === 'textarea') &&
-    !UNIVERSITY_TEXT_PATTERN.test(normalized)
-  ) {
-    return 'Use letters, numbers, spaces, and ~ only, or enter - / none / nil.'
   }
 }
 

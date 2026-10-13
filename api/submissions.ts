@@ -5,7 +5,7 @@ import {
   QUESTIONNAIRE_VERSIONS,
 } from '../src/constants/assessment.ts'
 import { questionnairesByType } from '../src/data/questionnaires/index.ts'
-import { getTableCellKey, isValidPhoneNumber, NOT_APPLICABLE_VALUES, UNIVERSITY_TEXT_PATTERN } from '../src/lib/sectionSchema.ts'
+import { getTableCellKey, isValidPhoneNumber, NOT_APPLICABLE_VALUES } from '../src/lib/sectionSchema.ts'
 import type { AssessmentType } from '../src/types/index.ts'
 
 const tableByType = {
@@ -185,8 +185,8 @@ function validatePayload(payload: unknown): { assessmentType: AssessmentType; ro
       if (!isAnswered(answer)) return
       const normalized = answer.trim()
       if (NOT_APPLICABLE_VALUES.has(normalized.toLowerCase())) continue
-      if (question.inputType === 'number' && !/^(?:\d+(?:\.\d*)?|\.\d+)$/.test(normalized)) return
-      if (question.inputType === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalized)) return
+      if (assessmentType !== 'university' && question.inputType === 'number' && !/^(?:\d+(?:\.\d*)?|\.\d+)$/.test(normalized)) return
+      if (assessmentType !== 'university' && question.inputType === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalized)) return
       if (question.inputType === 'url') {
         try {
           new URL(normalized)
@@ -195,13 +195,6 @@ function validatePayload(payload: unknown): { assessmentType: AssessmentType; ro
         }
       }
       if (question.inputType === 'tel' && !isValidPhoneNumber(normalized)) return
-      if (
-        assessmentType === 'university' &&
-        (question.inputType === 'text' || question.inputType === 'textarea') &&
-        !UNIVERSITY_TEXT_PATTERN.test(normalized)
-      ) {
-        return
-      }
     }
   }
   if (usedAttachmentPaths.size !== attachmentsByPath.size) return
