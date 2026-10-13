@@ -196,7 +196,7 @@ export function AssessmentReportPage() {
           {canDownload ? (
             <button type="button" className="admin-btn" onClick={() => void handleExportZip()} disabled={zipping}>
               <Package size={15} />
-              {zipping && zipProgress ? ` Zipping ${zipProgress.done}/${zipProgress.total}` : ' Download all documents (ZIP)'}
+              {zipping && zipProgress ? ` Zipping ${zipProgress.done}/${zipProgress.total}` : ' Download all documents (ZIP + Excel)'}
             </button>
           ) : null}
           {canReview ? (

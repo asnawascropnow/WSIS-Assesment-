@@ -1,6 +1,7 @@
 import type JSZipType from 'jszip'
 import type { Questionnaire } from '../../../types'
 import { adminApi, fetchAsBlob, triggerBlobDownload } from '../api'
+import { buildAssessmentWorkbook } from './excel'
 import { ASSESSMENT_TYPE_LABEL } from '../format'
 import type { AssessmentRow, AssessmentType, DocumentIndexRow } from '../types'
 
@@ -101,6 +102,18 @@ export async function downloadAssessmentDocumentsZip(
     }
   }
 
+  const workbookName = `${root}.xlsx`
+  try {
+    const workbookBlob = await buildAssessmentWorkbook(assessment, assessmentType, questionnaire, verificationByPath)
+    zip.file(workbookName, workbookBlob)
+  } catch (error) {
+    failures.push({
+      fileName: workbookName,
+      storagePath: '—',
+      reason: `Excel workbook export failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+    })
+  }
+
   zip.file('manifest.json', JSON.stringify(manifest, null, 2))
 
   const failureReport = failures.length
@@ -121,6 +134,7 @@ export async function downloadAssessmentDocumentsZip(
       ``,
       `Documents are organised as <assessment> / <section id> / <question id> / <original filename>.`,
       `manifest.json maps every file to its assessment, section, question and storage path.`,
+      `${workbookName} is the Excel assessment report (summary, section answers, document manifest).`,
       failureReport,
     ].join('\n'),
   )

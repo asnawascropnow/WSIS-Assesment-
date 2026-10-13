@@ -33,12 +33,12 @@ function answerToText(value: unknown): string {
   return asText(value)
 }
 
-export async function downloadAssessmentWorkbook(
+export async function buildAssessmentWorkbook(
   assessment: AssessmentRow,
   assessmentType: AssessmentType,
   questionnaire: Questionnaire,
   verificationByPath?: Map<string, DocumentIndexRow>,
-): Promise<void> {
+): Promise<Blob> {
   const excelModule = await import('exceljs')
   const ExcelJSImport = (excelModule.default ?? excelModule) as typeof ExcelJS
   const workbook = new ExcelJSImport.Workbook()
@@ -220,11 +220,24 @@ export async function downloadAssessmentWorkbook(
   }
 
   const buffer = await workbook.xlsx.writeBuffer()
-  const blob = new Blob([buffer], {
+  return new Blob([buffer], {
     type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
   })
+}
+
+export function assessmentWorkbookFileName(assessment: AssessmentRow, assessmentType: AssessmentType): string {
   const safeName = (assessment.organization_name || assessmentType).replace(/[^\w.-]+/g, '_').slice(0, 60)
-  triggerBlobDownload(blob, `${safeName}_${assessment.id.slice(0, 8)}.xlsx`)
+  return `${safeName}_${assessment.id.slice(0, 8)}.xlsx`
+}
+
+export async function downloadAssessmentWorkbook(
+  assessment: AssessmentRow,
+  assessmentType: AssessmentType,
+  questionnaire: Questionnaire,
+  verificationByPath?: Map<string, DocumentIndexRow>,
+): Promise<void> {
+  const blob = await buildAssessmentWorkbook(assessment, assessmentType, questionnaire, verificationByPath)
+  triggerBlobDownload(blob, assessmentWorkbookFileName(assessment, assessmentType))
 }
 
 export function describeDocument(attachment: { content_type: string; size_bytes: number }): string {
