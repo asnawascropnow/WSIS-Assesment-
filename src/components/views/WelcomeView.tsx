@@ -47,7 +47,7 @@ export function WelcomeView({ onSelect }: WelcomeViewProps) {
           <div className="initiative-logos">
             <img className="initiative-logo" src="/cropnow-logo.png" alt="CropNow" />
             <a href="https://www.akashbhumi.com/" target="_blank" rel="noopener noreferrer" aria-label="Akash Bhumi website">
-              <img className="initiative-logo" src="/akashbhumi-logo.png" alt="Akash Bhumi" />
+              <img className="initiative-logo initiative-logo--chip" src="/akashbhumi-logo.png" alt="Akash Bhumi" />
             </a>
             <a href="https://alttech.foundation/" target="_blank" rel="noopener noreferrer" aria-label="AltTech Foundation website">
               <img
