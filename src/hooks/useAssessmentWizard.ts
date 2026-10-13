@@ -44,7 +44,7 @@ export function useAssessmentWizard() {
 
   const validateCurrentSection = () => {
     const sectionValues = form.getValues()[currentSection.id] ?? {}
-    const validationError = validateQuestionnaireSection(currentSection, sectionValues)
+    const validationError = validateQuestionnaireSection(currentSection, sectionValues, assessmentType)
 
     if (validationError) {
       form.clearErrors()
@@ -66,7 +66,7 @@ export function useAssessmentWizard() {
     form.clearErrors()
     for (const [sectionIndex, section] of activeQuestionnaire.sections.entries()) {
       const sectionValues = form.getValues()[section.id] ?? {}
-      const validationError = validateQuestionnaireSection(section, sectionValues)
+      const validationError = validateQuestionnaireSection(section, sectionValues, assessmentType)
 
       if (validationError) {
         form.setError(`${section.id}.${validationError.questionId}` as never, {

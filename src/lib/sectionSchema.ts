@@ -2,11 +2,24 @@ import {
   ALLOWED_ATTACHMENT_TYPES,
   MAX_ATTACHMENT_SIZE_BYTES,
 } from '../constants/assessment'
-import type { QuestionDefinition, QuestionnaireSection, TableDefinition } from '../types'
+import type { AssessmentType, QuestionDefinition, QuestionnaireSection, TableDefinition } from '../types'
 import type { SectionValues } from '../types'
 
 export const NOT_APPLICABLE_VALUES = new Set(['-', 'none', 'nil'])
 export const DRAFT_ATTACHMENT_RESELECT = '__attachment_requires_reselection__'
+
+// University text/textarea answers may only combine alphanumeric characters and spaces with "~".
+export const UNIVERSITY_TEXT_PATTERN = /^[A-Za-z0-9 ~]+$/
+
+export function isValidPhoneNumber(value: string): boolean {
+  const segments = value.split('/').map((segment) => segment.trim()).filter(Boolean)
+  if (segments.length === 0) return false
+  return segments.every((segment) => {
+    if (!/^\+?[0-9()\-\s]+$/.test(segment)) return false
+    const digits = segment.replace(/\D/g, '')
+    return digits.length >= 7 && digits.length <= 15
+  })
+}
 
 type ValidationError = {
   questionId: string
@@ -26,7 +39,11 @@ export function getTableCellKey(table: TableDefinition, index: number): string {
   return `column_${index}`
 }
 
-function validateQuestion(question: QuestionDefinition, value: unknown): string | undefined {
+function validateQuestion(
+  question: QuestionDefinition,
+  value: unknown,
+  assessmentType?: AssessmentType,
+): string | undefined {
   if (question.inputType === 'file') {
     if (typeof value === 'string' && NOT_APPLICABLE_VALUES.has(value.trim().toLowerCase())) return
     if (!Array.isArray(value) || value.length === 0) {
@@ -81,14 +98,25 @@ function validateQuestion(question: QuestionDefinition, value: unknown): string 
       return 'Enter a valid URL, or use - / none / nil.'
     }
   }
+  if (question.inputType === 'tel' && !isValidPhoneNumber(normalized)) {
+    return 'Enter a valid phone number (7-15 digits, +, -, spaces, parentheses allowed), or use - / none / nil.'
+  }
+  if (
+    assessmentType === 'university' &&
+    (question.inputType === 'text' || question.inputType === 'textarea') &&
+    !UNIVERSITY_TEXT_PATTERN.test(normalized)
+  ) {
+    return 'Use letters, numbers, spaces, and ~ only, or enter - / none / nil.'
+  }
 }
 
 export function validateQuestionnaireSection(
   section: QuestionnaireSection,
   values: SectionValues,
+  assessmentType?: AssessmentType,
 ): ValidationError | undefined {
   for (const question of section.questions) {
-    const message = validateQuestion(question, values[question.id])
+    const message = validateQuestion(question, values[question.id], assessmentType)
     if (message) return { questionId: question.id, message }
   }
 }

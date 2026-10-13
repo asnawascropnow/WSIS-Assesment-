@@ -5,7 +5,7 @@ import {
   QUESTIONNAIRE_VERSIONS,
 } from '../src/constants/assessment.ts'
 import { questionnairesByType } from '../src/data/questionnaires/index.ts'
-import { getTableCellKey, NOT_APPLICABLE_VALUES } from '../src/lib/sectionSchema.ts'
+import { getTableCellKey, isValidPhoneNumber, NOT_APPLICABLE_VALUES, UNIVERSITY_TEXT_PATTERN } from '../src/lib/sectionSchema.ts'
 import type { AssessmentType } from '../src/types/index.ts'
 
 const tableByType = {
@@ -193,6 +193,14 @@ function validatePayload(payload: unknown): { assessmentType: AssessmentType; ro
         } catch {
           return
         }
+      }
+      if (question.inputType === 'tel' && !isValidPhoneNumber(normalized)) return
+      if (
+        assessmentType === 'university' &&
+        (question.inputType === 'text' || question.inputType === 'textarea') &&
+        !UNIVERSITY_TEXT_PATTERN.test(normalized)
+      ) {
+        return
       }
     }
   }
