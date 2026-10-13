@@ -75,15 +75,16 @@ button { color: inherit; }
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 18px;
+  gap: 22px;
 }
-.initiative-logo { width: 120px; height: auto; max-height: 72px; object-fit: contain; background: transparent; }
+.initiative-logo { width: 170px; height: auto; max-height: 100px; object-fit: contain; background: transparent; }
 .initiative-logo--chip { background: #000; }
 .initiative-link {
   color: inherit;
   text-decoration: none;
-  display: inline-flex;
-  align-items: center;
+  display: block;
+  width: 100%;
+  text-align: center;
 }
 .initiative-link:hover { text-decoration: underline; }
 .success-badge { background: var(--mint); }
@@ -267,7 +268,7 @@ input:focus-visible, textarea:focus-visible, select:focus-visible { border-color
   .welcome-card { padding: 26px 20px; box-shadow: 6px 6px 0 var(--ink); }
   .initiative-badge { font-size: 1rem; gap: 10px; padding: 14px 20px; }
   .initiative-logos { gap: 10px; }
-  .initiative-logo { width: 80px; }
+  .initiative-logo { width: 100px; }
   .welcome-flow { gap: 7px; font-size: .84rem; }
   .assessment-choices { grid-template-columns: 1fr; gap: 12px; margin-top: 26px; }
   .assessment-choice { min-height: 84px; padding: 14px; }
