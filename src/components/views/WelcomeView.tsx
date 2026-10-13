@@ -44,13 +44,19 @@ export function WelcomeView({ onSelect }: WelcomeViewProps) {
     <section className="welcome-screen">
       <div className="welcome-card">
         <div className="welcome-badge initiative-badge">
-          <img className="initiative-logo" src="/akashbhumi-logo.png" alt="Akash Bhumi" />
-          NET ZERO INITIATIVE
-          <img
-            className="initiative-logo"
-            src="/net-zero-initiative/images/alttech-logo-transparent.png"
-            alt="AltTech"
-          />
+          <a href="https://www.akashbhumi.com/" target="_blank" rel="noopener noreferrer" aria-label="Akash Bhumi website">
+            <img className="initiative-logo" src="/akashbhumi-logo.png" alt="Akash Bhumi" />
+          </a>
+          <a href="https://ab.cropdesk.in/" target="_blank" rel="noopener noreferrer" className="initiative-link">
+            NET ZERO INITIATIVE
+          </a>
+          <a href="https://alttech.foundation/" target="_blank" rel="noopener noreferrer" aria-label="AltTech Foundation website">
+            <img
+              className="initiative-logo"
+              src="/net-zero-initiative/images/alttech-logo-transparent.png"
+              alt="AltTech Foundation"
+            />
+          </a>
         </div>
         <h1>Water Assessment</h1>
         <p className="welcome-subtitle">Choose the questionnaire for your organization</p>
