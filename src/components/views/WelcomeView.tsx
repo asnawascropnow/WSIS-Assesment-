@@ -46,6 +46,11 @@ export function WelcomeView({ onSelect }: WelcomeViewProps) {
         <div className="welcome-badge initiative-badge">
           <img className="initiative-logo" src="/akashbhumi-logo.png" alt="Akash Bhumi" />
           NET ZERO INITIATIVE
+          <img
+            className="initiative-logo"
+            src="/net-zero-initiative/images/alttech-logo-transparent.png"
+            alt="AltTech"
+          />
         </div>
         <h1>Water Assessment</h1>
         <p className="welcome-subtitle">Choose the questionnaire for your organization</p>
