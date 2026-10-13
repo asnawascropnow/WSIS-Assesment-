@@ -45,7 +45,9 @@ export function WelcomeView({ onSelect }: WelcomeViewProps) {
       <div className="welcome-card">
         <div className="welcome-badge initiative-badge">
           <div className="initiative-logos">
-            <img className="initiative-logo" src="/cropnow-logo.png" alt="CropNow" />
+            <a href="https://cropdesk.in/" target="_blank" rel="noopener noreferrer" aria-label="CropDesk website">
+              <img className="initiative-logo" src="/cropnow-logo.png" alt="CropNow" />
+            </a>
             <a href="https://www.akashbhumi.com/" target="_blank" rel="noopener noreferrer" aria-label="Akash Bhumi website">
               <img className="initiative-logo initiative-logo--chip" src="/akashbhumi-logo.png" alt="Akash Bhumi" />
             </a>
