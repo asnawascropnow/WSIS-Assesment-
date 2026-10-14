@@ -3,6 +3,18 @@
    Warm canvas, mint/lime accents, black borders, offset shadows.
    ========================================================================== */
 
+/* The public site now uses a monochrome (black / white / grey) palette.
+   The admin console intentionally keeps the original coloured accents, so
+   restore those shared tokens within the admin surfaces. */
+.admin-shell,
+.admin-login-screen {
+  --paper: #fffefa;
+  --canvas: #f5f4ef;
+  --mint: #9cf3d0;
+  --lime: #d8ff63;
+  --pink: #ff9eb5;
+}
+
 .admin-shell {
   display: grid;
   grid-template-columns: 288px minmax(0, 1fr);
