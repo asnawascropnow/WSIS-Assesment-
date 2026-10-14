@@ -82,13 +82,10 @@ function validateQuestion(
   if (typeof value !== 'string' || NOT_APPLICABLE_VALUES.has(value.trim().toLowerCase())) return
   const normalized = value.trim()
 
-  // University only formats its Google Maps URL and contact number.
-  // Apartment only formats its Google Maps URL, contact number and email.
-  // Every other answer (including numeric inputs) accepts any characters.
-  const formatsNumbers = assessmentType !== 'university' && assessmentType !== 'apartment'
-  if (formatsNumbers && question.inputType === 'number' && !/^(?:\d+(?:\.\d*)?|\.\d+)$/.test(normalized)) {
-    return 'Enter a non-negative number, or use - / none / nil.'
-  }
+  // Format checks are limited to the Google Maps URL and contact number for
+  // every category, and the email address for every category except
+  // university. Every other answer (including numeric inputs) accepts any
+  // combination of characters.
   if (assessmentType !== 'university' && question.inputType === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalized)) {
     return 'Enter a valid email address, or use - / none / nil.'
   }

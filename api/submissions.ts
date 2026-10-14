@@ -185,8 +185,6 @@ function validatePayload(payload: unknown): { assessmentType: AssessmentType; ro
       if (!isAnswered(answer)) return
       const normalized = answer.trim()
       if (NOT_APPLICABLE_VALUES.has(normalized.toLowerCase())) continue
-      const formatsNumbers = assessmentType !== 'university' && assessmentType !== 'apartment'
-      if (formatsNumbers && question.inputType === 'number' && !/^(?:\d+(?:\.\d*)?|\.\d+)$/.test(normalized)) return
       if (assessmentType !== 'university' && question.inputType === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalized)) return
       if (question.inputType === 'url') {
         try {
