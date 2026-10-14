@@ -1,14 +1,19 @@
 import { useFormContext } from 'react-hook-form'
-import type { FormValues, QuestionDefinition, QuestionnaireSection } from '../../types'
+import type { AssessmentType, FormValues, QuestionDefinition, QuestionnaireSection } from '../../types'
 import { getQuestionExample } from '../../data/questionnaireExamples'
 import { getQuestionTableExample } from '../../data/questionnaireTableExamples'
+import { getApproximationNotes } from '../../data/approximationNotes'
 import { InfoTip, type InfoTipTable } from './InfoTip'
 import { QuestionField } from './QuestionField'
 
 type QuestionCardProps = {
   section: QuestionnaireSection
   question: QuestionDefinition
+  assessmentType: AssessmentType
 }
+
+/** Input types where the "~" approximation convention is relevant. */
+const NUMERIC_INPUT_TYPES = new Set<QuestionDefinition['inputType']>(['table', 'number', 'textarea'])
 
 /**
  * Builds the structured example shown in the ⓘ tooltip for table questions.
@@ -34,13 +39,16 @@ function buildTableExample(
   return { columns, rows }
 }
 
-export function QuestionCard({ section, question }: QuestionCardProps) {
+export function QuestionCard({ section, question, assessmentType }: QuestionCardProps) {
   const form = useFormContext<FormValues>()
   const errors = form.formState.errors as Record<string, any>
   const errorMessage = errors?.[section.id]?.[question.id]?.message
 
   const tableExample = buildTableExample(section, question)
   const example = getQuestionExample(section.id, question.id) ?? question.example
+  const notes = NUMERIC_INPUT_TYPES.has(question.inputType)
+    ? getApproximationNotes(assessmentType)
+    : []
 
   return (
     <div className="question-card">
@@ -53,9 +61,12 @@ export function QuestionCard({ section, question }: QuestionCardProps) {
             table={tableExample}
             title="Example values"
             hint="Fill the table row by row, in this order."
+            notes={notes}
           />
         ) : example ? (
-          <InfoTip text={example} />
+          <InfoTip text={example} notes={notes} />
+        ) : notes.length > 0 ? (
+          <InfoTip notes={notes} />
         ) : null}
       </div>
       <div className="example-box">

@@ -189,6 +189,7 @@ export function useAssessmentWizard() {
 
   return {
     activeQuestionnaire,
+    assessmentType,
     currentSection,
     currentSectionIndex,
     completedSections,

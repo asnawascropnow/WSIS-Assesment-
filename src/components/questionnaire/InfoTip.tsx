@@ -13,12 +13,15 @@ type InfoTipProps = {
   table?: InfoTipTable
   title?: string
   hint?: string
+  notes?: string[]
 }
 
-export function InfoTip({ text, table, title = 'Example', hint }: InfoTipProps) {
+const NOTE_TITLE = 'When to use "~"'
+
+export function InfoTip({ text, table, title = 'Example', hint, notes = [] }: InfoTipProps) {
   const [open, setOpen] = useState(false)
   const panelId = useId()
-  const wrapperRef = useRef<HTMLSpanElement>(null)
+  const wrapperRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (!open) return
@@ -40,10 +43,11 @@ export function InfoTip({ text, table, title = 'Example', hint }: InfoTipProps) 
 
   const hasTable = Boolean(table && table.columns.length > 0 && table.rows.length > 0)
   const hasText = Boolean(text && text.trim().length > 0)
-  if (!hasTable && !hasText) return null
+  const hasNotes = notes.length > 0
+  if (!hasTable && !hasText && !hasNotes) return null
 
   return (
-    <span
+    <div
       className="info-tip"
       ref={wrapperRef}
       onMouseEnter={() => setOpen(true)}
@@ -60,17 +64,17 @@ export function InfoTip({ text, table, title = 'Example', hint }: InfoTipProps) 
         <Info size={15} aria-hidden="true" />
       </button>
       {open ? (
-        <span
+        <div
           className={`info-tip-panel${hasTable ? ' info-tip-panel--wide' : ''}`}
           role="tooltip"
           id={panelId}
         >
-          <span className="info-tip-head">
+          <div className="info-tip-head">
             <span className="info-tip-label">{title}</span>
             {hint ? <span className="info-tip-hint">{hint}</span> : null}
-          </span>
+          </div>
           {hasTable ? (
-            <span className="info-tip-table-wrap">
+            <div className="info-tip-table-wrap">
               <table className="info-tip-table">
                 <thead>
                   <tr>
@@ -97,12 +101,22 @@ export function InfoTip({ text, table, title = 'Example', hint }: InfoTipProps) 
                   ))}
                 </tbody>
               </table>
-            </span>
-          ) : (
-            <span className="info-tip-body">{text}</span>
-          )}
-        </span>
+            </div>
+          ) : hasText ? (
+            <p className="info-tip-body">{text}</p>
+          ) : null}
+          {hasNotes ? (
+            <div className="info-tip-note">
+              <span className="info-tip-note-title">{NOTE_TITLE}</span>
+              <ul className="info-tip-note-list">
+                {notes.map((note, index) => (
+                  <li key={index}>{note}</li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
+        </div>
       ) : null}
-    </span>
+    </div>
   )
 }

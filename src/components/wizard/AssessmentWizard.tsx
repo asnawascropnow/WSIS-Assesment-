@@ -1,12 +1,13 @@
 import { ArrowLeft, ArrowRight, Save } from 'lucide-react'
 import type { RefObject } from 'react'
-import type { Questionnaire, QuestionnaireSection, SaveStatus } from '../../types'
+import type { AssessmentType, Questionnaire, QuestionnaireSection, SaveStatus } from '../../types'
 import { Sidebar } from '../layout/Sidebar'
 import { Topbar } from '../layout/Topbar'
 import { QuestionCard } from '../questionnaire/QuestionCard'
 
 type AssessmentWizardProps = {
   activeQuestionnaire: Questionnaire
+  assessmentType: AssessmentType
   currentSection: QuestionnaireSection
   currentSectionIndex: number
   completedSections: Set<number>
@@ -22,6 +23,7 @@ type AssessmentWizardProps = {
 
 export function AssessmentWizard({
   activeQuestionnaire,
+  assessmentType,
   currentSection,
   currentSectionIndex,
   completedSections,
@@ -59,7 +61,12 @@ export function AssessmentWizard({
 
         <div className="questions-stack">
           {currentSection.questions.map((question) => (
-            <QuestionCard key={question.id} section={currentSection} question={question} />
+            <QuestionCard
+              key={question.id}
+              section={currentSection}
+              question={question}
+              assessmentType={assessmentType}
+            />
           ))}
         </div>
 

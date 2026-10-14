@@ -226,7 +226,7 @@ button { color: inherit; }
 .info-tip-head { display: block; margin: 4px 0 10px; }
 .info-tip-label { display: block; color: #a0183d; font-size: .66rem; font-weight: 900; letter-spacing: .09em; text-transform: uppercase; }
 .info-tip-hint { display: block; margin-top: 3px; color: #666; font-size: .76rem; line-height: 1.45; }
-.info-tip-body { display: block; color: #333; font-size: .85rem; line-height: 1.65; overflow-wrap: anywhere; }
+.info-tip-body { display: block; margin: 0; color: #333; font-size: .85rem; line-height: 1.65; overflow-wrap: anywhere; }
 .info-tip-table-wrap { display: block; overflow-x: auto; }
 .info-tip-table { width: 100%; border-collapse: collapse; font-size: .78rem; line-height: 1.4; }
 .info-tip-table th, .info-tip-table td { padding: 6px 9px; border: 1px solid #cfcdc2; text-align: left; vertical-align: top; overflow-wrap: anywhere; }
@@ -234,6 +234,11 @@ button { color: inherit; }
 .info-tip-table tbody th { background: #f1f0e9; color: var(--ink); font-weight: 800; min-width: 92px; }
 .info-tip-table tbody td { color: #333; min-width: 76px; }
 .info-tip-table tbody tr:nth-child(even) td { background: #faf9f3; }
+.info-tip-note { display: block; margin-top: 12px; padding-top: 10px; border-top: 1.5px dashed #b9b6a9; }
+.info-tip-note-title { display: block; margin-bottom: 5px; color: #a0183d; font-size: .66rem; font-weight: 900; letter-spacing: .09em; text-transform: uppercase; }
+.info-tip-note-list { margin: 0; padding-left: 16px; color: #444; font-size: .78rem; line-height: 1.55; }
+.info-tip-note-list li { margin-bottom: 4px; }
+.info-tip-note-list li:last-child { margin-bottom: 0; }
 @keyframes info-tip-in { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
 .example-box { margin-bottom: 14px; padding: 12px 14px; border: 1.5px solid var(--ink); background: #f1f0e9; }
 .example-label { display: block; margin-bottom: 5px; font-size: .68rem; font-weight: 900; letter-spacing: .09em; text-transform: uppercase; }

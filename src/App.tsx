@@ -8,6 +8,7 @@ import { useAssessmentWizard } from './hooks/useAssessmentWizard'
 function App() {
   const {
     activeQuestionnaire,
+    assessmentType,
     currentSection,
     currentSectionIndex,
     completedSections,
@@ -52,6 +53,7 @@ function App() {
         return (
           <AssessmentWizard
             activeQuestionnaire={activeQuestionnaire}
+            assessmentType={assessmentType}
             currentSection={currentSection}
             currentSectionIndex={currentSectionIndex}
             completedSections={completedSections}
