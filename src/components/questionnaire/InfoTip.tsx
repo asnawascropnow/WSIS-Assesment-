@@ -1,12 +1,21 @@
 import { Info } from 'lucide-react'
 import { useEffect, useId, useRef, useState } from 'react'
 
-type InfoTipProps = {
-  text: string
-  title?: string
+export type InfoTipTable = {
+  /** Column headers, in display order (first column is the row label). */
+  columns: string[]
+  /** Body rows; every row already includes its label as the first cell. */
+  rows: string[][]
 }
 
-export function InfoTip({ text, title = 'Example' }: InfoTipProps) {
+type InfoTipProps = {
+  text?: string
+  table?: InfoTipTable
+  title?: string
+  hint?: string
+}
+
+export function InfoTip({ text, table, title = 'Example', hint }: InfoTipProps) {
   const [open, setOpen] = useState(false)
   const panelId = useId()
   const wrapperRef = useRef<HTMLSpanElement>(null)
@@ -29,6 +38,10 @@ export function InfoTip({ text, title = 'Example' }: InfoTipProps) {
     }
   }, [open])
 
+  const hasTable = Boolean(table && table.columns.length > 0 && table.rows.length > 0)
+  const hasText = Boolean(text && text.trim().length > 0)
+  if (!hasTable && !hasText) return null
+
   return (
     <span
       className="info-tip"
@@ -42,14 +55,52 @@ export function InfoTip({ text, title = 'Example' }: InfoTipProps) {
         aria-label="Show example"
         aria-expanded={open}
         aria-describedby={open ? panelId : undefined}
-        onClick={() => setOpen(true)}
+        onClick={() => setOpen((value) => !value)}
       >
         <Info size={15} aria-hidden="true" />
       </button>
       {open ? (
-        <span className="info-tip-panel" role="tooltip" id={panelId}>
-          <span className="info-tip-label">{title}</span>
-          <span className="info-tip-body">{text}</span>
+        <span
+          className={`info-tip-panel${hasTable ? ' info-tip-panel--wide' : ''}`}
+          role="tooltip"
+          id={panelId}
+        >
+          <span className="info-tip-head">
+            <span className="info-tip-label">{title}</span>
+            {hint ? <span className="info-tip-hint">{hint}</span> : null}
+          </span>
+          {hasTable ? (
+            <span className="info-tip-table-wrap">
+              <table className="info-tip-table">
+                <thead>
+                  <tr>
+                    {table!.columns.map((column, index) => (
+                      <th key={index} scope="col">
+                        {column}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {table!.rows.map((row, rowIndex) => (
+                    <tr key={rowIndex}>
+                      {row.map((cell, cellIndex) =>
+                        cellIndex === 0 ? (
+                          <th key={cellIndex} scope="row">
+                            {cell}
+                          </th>
+                        ) : (
+                          <td key={cellIndex}>{cell}</td>
+                        ),
+                      )}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </span>
+          ) : (
+            <span className="info-tip-body">{text}</span>
+          )}
         </span>
       ) : null}
     </span>

@@ -202,24 +202,39 @@ button { color: inherit; }
 .questions-stack { display: grid; gap: 16px; max-width: 1040px; margin: 0 auto; }
 .question-card { padding: 20px; border: var(--line); background: var(--paper); box-shadow: 4px 4px 0 var(--ink); transition: box-shadow 140ms ease, transform 140ms ease; }
 .question-card:focus-within { box-shadow: 6px 6px 0 var(--pink); transform: translate(-1px, -1px); }
-.question-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+.question-head { position: relative; display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
 .question-label { display: block; margin-bottom: 12px; font-family: 'Manrope', 'DM Sans', sans-serif; font-size: 1.03rem; font-weight: 900; line-height: 1.4; }
 .question-head .question-label { margin-bottom: 0; }
 .required-indicator { color: #a0183d; font-weight: 900; }
-.info-tip { position: relative; display: inline-flex; flex: 0 0 auto; }
+.info-tip { position: static; display: inline-flex; flex: 0 0 auto; }
 .info-tip-trigger {
   display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; padding: 0;
   border: 1.5px solid var(--ink); border-radius: 50%; background: var(--lime); color: var(--ink); cursor: pointer;
   transition: transform 120ms ease, box-shadow 120ms ease, background 120ms ease;
 }
 .info-tip-trigger:hover { transform: translate(-1px, -1px); box-shadow: 2px 2px 0 var(--ink); }
+.info-tip-trigger:focus-visible { outline: 2px solid var(--pink); outline-offset: 2px; }
 .info-tip-trigger[aria-expanded='true'] { background: var(--pink); color: #fff; }
 .info-tip-panel {
-  position: absolute; top: calc(100% + 8px); right: 0; z-index: 40; width: min(340px, 78vw);
-  padding: 12px 14px; border: var(--line); background: #fff; box-shadow: 4px 4px 0 var(--ink); text-align: left;
+  position: absolute; top: calc(100% + 10px); right: 0; z-index: 60; width: min(360px, 100%);
+  max-height: min(72vh, 560px); overflow: auto; padding: 16px 16px 14px;
+  border: var(--line); background: #fff; box-shadow: 5px 5px 0 var(--ink); text-align: left;
+  animation: info-tip-in 120ms ease-out;
 }
-.info-tip-label { display: block; margin-bottom: 5px; color: #a0183d; font-size: .66rem; font-weight: 900; letter-spacing: .09em; text-transform: uppercase; }
-.info-tip-body { display: block; color: #333; font-size: .85rem; line-height: 1.6; overflow-wrap: anywhere; }
+.info-tip-panel::before { content: ''; position: absolute; inset: 0 0 auto 0; height: 4px; background: var(--pink); }
+.info-tip-panel--wide { width: min(680px, 100%); }
+.info-tip-head { display: block; margin: 4px 0 10px; }
+.info-tip-label { display: block; color: #a0183d; font-size: .66rem; font-weight: 900; letter-spacing: .09em; text-transform: uppercase; }
+.info-tip-hint { display: block; margin-top: 3px; color: #666; font-size: .76rem; line-height: 1.45; }
+.info-tip-body { display: block; color: #333; font-size: .85rem; line-height: 1.65; overflow-wrap: anywhere; }
+.info-tip-table-wrap { display: block; overflow-x: auto; }
+.info-tip-table { width: 100%; border-collapse: collapse; font-size: .78rem; line-height: 1.4; }
+.info-tip-table th, .info-tip-table td { padding: 6px 9px; border: 1px solid #cfcdc2; text-align: left; vertical-align: top; overflow-wrap: anywhere; }
+.info-tip-table thead th { background: var(--ink); color: #fff; font-size: .7rem; font-weight: 800; white-space: nowrap; }
+.info-tip-table tbody th { background: #f1f0e9; color: var(--ink); font-weight: 800; min-width: 92px; }
+.info-tip-table tbody td { color: #333; min-width: 76px; }
+.info-tip-table tbody tr:nth-child(even) td { background: #faf9f3; }
+@keyframes info-tip-in { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
 .example-box { margin-bottom: 14px; padding: 12px 14px; border: 1.5px solid var(--ink); background: #f1f0e9; }
 .example-label { display: block; margin-bottom: 5px; font-size: .68rem; font-weight: 900; letter-spacing: .09em; text-transform: uppercase; }
 .example-box p { margin: 0; color: #3d3d3d; font-size: .87rem; line-height: 1.6; overflow-wrap: anywhere; }
