@@ -70,7 +70,11 @@ function App() {
     }
   }
 
-  return <FormProvider {...form}>{renderView()}</FormProvider>
+  return (
+    <FormProvider {...form}>
+      <div className="public-app">{renderView()}</div>
+    </FormProvider>
+  )
 }
 
 export default App
