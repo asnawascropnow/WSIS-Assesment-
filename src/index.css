@@ -67,17 +67,18 @@ button { color: inherit; }
   margin: 0 auto;
   background: var(--mint);
   flex-direction: column;
-  gap: 14px;
-  padding: 20px 32px;
-  font-size: 1.3rem;
+  gap: 20px;
+  padding: 28px 44px;
+  font-size: 1.7rem;
 }
 .initiative-logos {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 22px;
+  gap: 32px;
+  flex-wrap: wrap;
 }
-.initiative-logo { width: 170px; height: auto; max-height: 100px; object-fit: contain; background: transparent; }
+.initiative-logo { width: 240px; height: auto; max-height: 150px; object-fit: contain; background: transparent; }
 .initiative-logo--chip { background: #000; }
 .initiative-link {
   color: inherit;
@@ -266,9 +267,9 @@ input:focus-visible, textarea:focus-visible, select:focus-visible { border-color
 @media (max-width: 600px) {
   .welcome-screen, .review-page { padding: 18px 14px; }
   .welcome-card { padding: 26px 20px; box-shadow: 6px 6px 0 var(--ink); }
-  .initiative-badge { font-size: 1rem; gap: 10px; padding: 14px 20px; }
-  .initiative-logos { gap: 10px; }
-  .initiative-logo { width: 100px; }
+  .initiative-badge { font-size: 1.15rem; gap: 14px; padding: 18px 22px; }
+  .initiative-logos { gap: 16px; }
+  .initiative-logo { width: min(30vw, 130px); }
   .welcome-flow { gap: 7px; font-size: .84rem; }
   .assessment-choices { grid-template-columns: 1fr; gap: 12px; margin-top: 26px; }
   .assessment-choice { min-height: 84px; padding: 14px; }
