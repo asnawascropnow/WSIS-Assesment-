@@ -494,6 +494,8 @@ textarea { min-height: 112px; resize: vertical; line-height: 1.6; }
 .public-app .questions-stack { display: grid; gap: 16px; max-width: 1000px; margin: 0 auto; }
 
 .public-app .question-card {
+  position: relative;
+  z-index: 1;
   padding: 22px;
   border: 1px solid var(--border);
   border-radius: var(--r-lg);
@@ -503,6 +505,9 @@ textarea { min-height: 112px; resize: vertical; line-height: 1.6; }
   animation: pub-rise .4s cubic-bezier(.22, 1, .36, 1) both;
 }
 .public-app .question-card:focus-within { border-color: rgba(67, 146, 63, .55); box-shadow: var(--shadow-md), var(--ring); }
+/* Lift the card that owns an open ⓘ tooltip so its panel paints above every
+   sibling card in the section (each card is its own stacking context). */
+.public-app .question-card:has(.info-tip-trigger[aria-expanded='true']) { z-index: 40; }
 .public-app .question-head { position: relative; display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
 .public-app .question-label {
   display: block;
