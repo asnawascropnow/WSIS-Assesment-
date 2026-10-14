@@ -30,6 +30,42 @@ const entries: Entry[] = Object.entries(modules)
   })
   .sort((a, b) => a.group.localeCompare(b.group) || a.name.localeCompare(b.name))
 
+/**
+ * Only mount a demo once it scrolls near the viewport. With ~200 live demos on
+ * one page this keeps the gallery responsive and stops every animation/canvas
+ * from running at once.
+ */
+function LazyMount({ children }: { children: React.ReactNode }) {
+  const ref = React.useRef<HTMLDivElement>(null)
+  const [shown, setShown] = React.useState(false)
+
+  React.useEffect(() => {
+    if (shown) return
+    const el = ref.current
+    if (!el || typeof IntersectionObserver === 'undefined') {
+      setShown(true)
+      return
+    }
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          setShown(true)
+          io.disconnect()
+        }
+      },
+      { rootMargin: '320px' },
+    )
+    io.observe(el)
+    return () => io.disconnect()
+  }, [shown])
+
+  return (
+    <div ref={ref} className='ui-gallery-lazy'>
+      {shown ? children : null}
+    </div>
+  )
+}
+
 class DemoBoundary extends React.Component<{ children: React.ReactNode }, { error: string | null }> {
   state: { error: string | null } = { error: null }
   static getDerivedStateFromError(error: unknown) {
@@ -96,7 +132,9 @@ export function UiGallery() {
                 </div>
                 <div className='ui-gallery-demo'>
                   <DemoBoundary>
-                    <Component />
+                    <LazyMount>
+                      <Component />
+                    </LazyMount>
                   </DemoBoundary>
                 </div>
               </article>
