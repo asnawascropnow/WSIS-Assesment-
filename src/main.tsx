@@ -14,6 +14,15 @@ if (window.location.pathname.startsWith('/admin')) {
       </StrictMode>,
     )
   })
+} else if (window.location.pathname.startsWith('/components')) {
+  // ui-layouts component gallery — code-split so it never touches the public app.
+  void import('./components/gallery/UiGallery.tsx').then(({ UiGallery }) => {
+    createRoot(container).render(
+      <StrictMode>
+        <UiGallery />
+      </StrictMode>,
+    )
+  })
 } else {
   createRoot(container).render(
     <StrictMode>

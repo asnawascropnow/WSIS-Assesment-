@@ -1,0 +1,154 @@
+/* Gallery skin — scoped so it never leaks into the public app or admin. */
+.ui-gallery {
+  --ui-border: #e6e9e8;
+  min-height: 100vh;
+  padding: 32px clamp(16px, 4vw, 48px) 96px;
+  background: #f4f7f5;
+  color: #0e1720;
+  font-family: 'DM Sans', 'Segoe UI', sans-serif;
+}
+
+.ui-gallery-head {
+  max-width: 900px;
+  margin: 0 auto 40px;
+  text-align: center;
+}
+
+.ui-gallery-eyebrow {
+  margin: 0 0 8px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #43923f;
+}
+
+.ui-gallery-head h1 {
+  margin: 0 0 12px;
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.ui-gallery-sub {
+  margin: 0 auto 20px;
+  max-width: 640px;
+  color: #4a5866;
+  line-height: 1.65;
+}
+
+.ui-gallery-sub code,
+.ui-gallery-empty code,
+.ui-gallery-card-head code {
+  padding: 1px 6px;
+  border-radius: 6px;
+  background: #eef2ef;
+  font-size: 0.8em;
+}
+
+.ui-gallery-search {
+  width: min(420px, 100%);
+  min-height: 46px;
+  padding: 10px 16px;
+  border: 1px solid var(--ui-border);
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 10px 30px rgba(20, 47, 45, 0.06);
+}
+
+.ui-gallery-group {
+  max-width: 1400px;
+  margin: 0 auto 44px;
+}
+
+.ui-gallery-group > h2 {
+  margin: 0 0 16px;
+  font-size: 1.05rem;
+  font-weight: 800;
+  text-transform: capitalize;
+  color: #142f2d;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--ui-border);
+}
+
+.ui-gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 20px;
+}
+
+.ui-gallery-card {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--ui-border);
+  border-radius: 16px;
+  overflow: hidden;
+  background: #ffffff;
+  box-shadow: 0 16px 40px rgba(20, 47, 45, 0.06);
+}
+
+.ui-gallery-card-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--ui-border);
+  background: #fbfcfb;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.ui-gallery-card-head code {
+  font-size: 0.66rem;
+  font-weight: 500;
+  color: #5c6b78;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 55%;
+}
+
+.ui-gallery-demo {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 180px;
+  padding: 20px;
+  overflow: hidden;
+}
+
+.ui-gallery-empty {
+  text-align: center;
+  color: #5c6b78;
+}
+
+.ui-gallery-fail {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #fdeceb;
+  color: #a4261c;
+  font-size: 0.8rem;
+  text-align: left;
+}
+
+/*
+ * The app ships aggressive global form styling (square 1.5px ink inputs).
+ * Neutralise it inside the gallery so vendored components keep their own look.
+ */
+.ui-gallery input:not([type='checkbox']):not([type='radio']),
+.ui-gallery select,
+.ui-gallery textarea {
+  border-width: 1px !important;
+  border-color: var(--ui-border) !important;
+  border-radius: 0.5rem !important;
+  min-height: 0;
+  box-shadow: none !important;
+}
+
+.ui-gallery :focus-visible {
+  outline: 2px solid #43923f !important;
+  outline-offset: 2px;
+}
