@@ -22,7 +22,9 @@ export function Sidebar({
   return (
     <aside className="sidebar">
       <div className="brand-box">
-        <img className="brand-logo" src="/akashbhumi-logo.png" alt="Akash Bhumi" />
+        <a href="/" aria-label="Back to home">
+          <img className="brand-logo" src="/akashbhumi-logo.webp" alt="Akash Bhumi" />
+        </a>
       </div>
 
       <ProgressPanel completed={completed} total={total} />
