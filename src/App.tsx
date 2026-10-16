@@ -5,7 +5,7 @@ import { WelcomeView } from './components/views/WelcomeView'
 import { AssessmentWizard } from './components/wizard/AssessmentWizard'
 import { useAssessmentWizard } from './hooks/useAssessmentWizard'
 
-function App() {
+function App({ testingMode = false }: { testingMode?: boolean }) {
   const {
     activeQuestionnaire,
     assessmentType,
@@ -65,6 +65,7 @@ function App() {
             onSaveProgress={saveCurrentDraft}
             onNext={handleNext}
             onBackToHomepage={backToHomepage}
+            testingMode={testingMode}
           />
         )
     }

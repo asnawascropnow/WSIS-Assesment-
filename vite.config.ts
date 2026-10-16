@@ -1,11 +1,80 @@
-import { Readable } from 'node:stream'
+import { createReadStream, statSync } from 'node:fs'
 import type { IncomingMessage, ServerResponse } from 'node:http'
+import { extname, join, normalize, sep } from 'node:path'
+import { Readable } from 'node:stream'
 import { fileURLToPath, URL } from 'node:url'
 import react from '@vitejs/plugin-react'
 import { defineConfig, loadEnv } from 'vite'
-import type { ViteDevServer } from 'vite'
+import type { Connect, Plugin, ViteDevServer } from 'vite'
 
 type ApiModule = { default: (request: Request) => Promise<Response> }
+
+const TESTING_MIME_TYPES: Record<string, string> = {
+  '.png': 'image/png',
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.webp': 'image/webp',
+  '.pdf': 'application/pdf',
+}
+
+/**
+ * Serves the repository `testing/` folder at `/testing/*` during `vite dev`
+ * and `vite preview`, so the dev-only apartment sample loader can attach those
+ * files exactly like a user picking them from disk.
+ */
+function serveTestingFolder(): Plugin {
+  const root = fileURLToPath(new URL('./testing', import.meta.url))
+  const middleware: Connect.NextHandleFunction = (request, response, next) => {
+    const pathname = (request.url ?? '').split('?')[0]
+    // `/testing` and `/testing/` are the app route (SPA fallback); only
+    // `/testing/<file>` is a file request served from the repo testing/ folder.
+    if (pathname === '/testing' || pathname === '/testing/') {
+      next()
+      return
+    }
+    if (!pathname.startsWith('/testing/')) {
+      next()
+      return
+    }
+
+    const relative = decodeURIComponent(pathname.slice('/testing/'.length))
+    const filePath = normalize(join(root, relative))
+    if (!filePath.startsWith(root + sep)) {
+      response.statusCode = 403
+      response.end('Forbidden')
+      return
+    }
+
+    let stats
+    try {
+      stats = statSync(filePath)
+    } catch {
+      response.statusCode = 404
+      response.end('Not found')
+      return
+    }
+    if (!stats.isFile()) {
+      response.statusCode = 404
+      response.end('Not found')
+      return
+    }
+
+    response.setHeader('Content-Type', TESTING_MIME_TYPES[extname(filePath).toLowerCase()] ?? 'application/octet-stream')
+    response.setHeader('Content-Length', stats.size)
+    response.setHeader('Cache-Control', 'no-store')
+    createReadStream(filePath).pipe(response)
+  }
+
+  return {
+    name: 'serve-testing-folder',
+    configureServer(server: ViteDevServer) {
+      server.middlewares.use(middleware)
+    },
+    configurePreviewServer(server) {
+      server.middlewares.use(middleware)
+    },
+  }
+}
 
 function createApiHandler(server: ViteDevServer, route: string, modulePath: string) {
   return async (incoming: IncomingMessage, outgoing: ServerResponse) => {
@@ -53,6 +122,7 @@ export default defineConfig(({ mode }) => {
     },
     plugins: [
       react(),
+      serveTestingFolder(),
       {
         name: 'assessment-api',
         configureServer(server) {

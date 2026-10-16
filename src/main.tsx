@@ -23,6 +23,14 @@ if (window.location.pathname.startsWith('/admin')) {
       </StrictMode>,
     )
   })
+} else if (window.location.pathname.startsWith('/testing')) {
+  // Testing route: the same assessment form, with the sample-data helper turned
+  // on for every category. Attachments are served from the repo testing/ folder.
+  createRoot(container).render(
+    <StrictMode>
+      <App testingMode />
+    </StrictMode>,
+  )
 } else {
   createRoot(container).render(
     <StrictMode>

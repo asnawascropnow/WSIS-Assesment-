@@ -1,9 +1,14 @@
 import { ArrowLeft, ArrowRight, Save } from 'lucide-react'
+import { Suspense, lazy } from 'react'
 import type { RefObject } from 'react'
 import type { AssessmentType, Questionnaire, QuestionnaireSection, SaveStatus } from '../../types'
 import { Sidebar } from '../layout/Sidebar'
 import { Topbar } from '../layout/Topbar'
 import { QuestionCard } from '../questionnaire/QuestionCard'
+
+// Testing helper, code-split so it only loads when actually shown (dev builds or
+// the /testing route). It carries the sample data for every category.
+const SampleDataPanel = lazy(() => import('../../dev/SampleDataPanel'))
 
 type AssessmentWizardProps = {
   activeQuestionnaire: Questionnaire
@@ -19,6 +24,8 @@ type AssessmentWizardProps = {
   onSaveProgress: () => void
   onNext: () => void
   onBackToHomepage: () => void
+  /** Force the sample-data helper on any category, e.g. on the /testing route. */
+  testingMode?: boolean
 }
 
 export function AssessmentWizard({
@@ -35,6 +42,7 @@ export function AssessmentWizard({
   onSaveProgress,
   onNext,
   onBackToHomepage,
+  testingMode = false,
 }: AssessmentWizardProps) {
   const isLastSection = currentSectionIndex === activeQuestionnaire.sections.length - 1
 
@@ -85,6 +93,12 @@ export function AssessmentWizard({
           </button>
         </div>
       </main>
+
+      {import.meta.env.DEV || testingMode ? (
+        <Suspense fallback={null}>
+          <SampleDataPanel assessmentType={assessmentType} />
+        </Suspense>
+      ) : null}
     </div>
   )
 }
