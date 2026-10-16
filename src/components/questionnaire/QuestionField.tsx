@@ -96,8 +96,24 @@ export function QuestionField({ section, question }: QuestionFieldProps) {
             multiple
             accept={ACCEPTED_ATTACHMENT_ATTRIBUTE}
             onChange={(event) => {
-              const files = Array.from(event.target.files ?? [])
-              form.setValue(fieldPath as any, files as any, { shouldDirty: true })
+              const incoming = Array.from(event.target.files ?? [])
+              // Append to whatever is already attached instead of replacing it,
+              // so uploading again adds to the existing documents. Skip exact
+              // duplicates (same name, size and last-modified stamp).
+              const existing = selectedFiles.filter((file): file is File => file instanceof File)
+              const merged = [...existing]
+              for (const file of incoming) {
+                const isDuplicate = merged.some(
+                  (kept) =>
+                    kept.name === file.name &&
+                    kept.size === file.size &&
+                    kept.lastModified === file.lastModified,
+                )
+                if (!isDuplicate) merged.push(file)
+              }
+              form.setValue(fieldPath as any, merged as any, { shouldDirty: true })
+              // Reset the native input so selecting the same file again still fires change.
+              event.target.value = ''
             }}
           />
           <div className="upload-meta">
