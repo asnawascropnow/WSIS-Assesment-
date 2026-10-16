@@ -38,7 +38,7 @@ export function WelcomeView({ onSelect }: WelcomeViewProps) {
     <section className="welcome-screen">
       <div className="welcome-card">
         <div className="welcome-badge initiative-badge">
-          <img className="initiative-logo" src="/akashbhumi-logo.png" alt="Akash Bhumi" />
+          <img className="initiative-logo" src="/akashbhumi-logo.webp" alt="Akash Bhumi" />
           NET ZERO INITIATIVE
         </div>
         <h1>Water Assessment</h1>

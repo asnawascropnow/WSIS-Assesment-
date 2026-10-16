@@ -1,0 +1,59 @@
+import { useEffect, useSyncExternalStore } from 'react'
+
+const NAV_EVENT = 'app:navigate'
+
+function subscribe(callback: () => void) {
+  window.addEventListener('popstate', callback)
+  window.addEventListener(NAV_EVENT, callback)
+  return () => {
+    window.removeEventListener('popstate', callback)
+    window.removeEventListener(NAV_EVENT, callback)
+  }
+}
+
+function getSnapshot() {
+  return window.location.pathname
+}
+
+/** Current client-side route (pathname only). */
+export function usePathname() {
+  return useSyncExternalStore(subscribe, getSnapshot, () => '/')
+}
+
+export function navigate(to: string) {
+  if (to === window.location.pathname) return
+  window.history.pushState(null, '', to)
+  window.dispatchEvent(new Event(NAV_EVENT))
+  window.scrollTo(0, 0)
+}
+
+/**
+ * Turns same-origin `<a href="/...">` clicks into client-side navigation so the
+ * brochure's inline links (e.g. "Request a Water Assessment") stay in the SPA.
+ * Hash-only links are left to the smoother/handler in the brochure.
+ */
+export function useLinkInterceptor() {
+  useEffect(() => {
+    const onClick = (event: MouseEvent) => {
+      if (event.defaultPrevented || event.button !== 0) return
+      if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return
+
+      const anchor = (event.target as HTMLElement | null)?.closest?.('a')
+      if (!anchor) return
+      if (anchor.target && anchor.target !== '_self') return
+      if (anchor.hasAttribute('download')) return
+
+      const href = anchor.getAttribute('href')
+      if (!href || !href.startsWith('/') || href.startsWith('//')) return
+
+      const url = new URL(anchor.href, window.location.origin)
+      if (url.origin !== window.location.origin) return
+
+      event.preventDefault()
+      navigate(url.pathname + url.search + url.hash)
+    }
+
+    document.addEventListener('click', onClick)
+    return () => document.removeEventListener('click', onClick)
+  }, [])
+}

@@ -1,0 +1,52 @@
+import type { CSSProperties, ImgHTMLAttributes } from 'react'
+
+type ImgProps = {
+  src: string
+  alt?: string
+  width?: number | string
+  height?: number | string
+  fill?: boolean
+  priority?: boolean
+  sizes?: string
+  style?: CSSProperties
+  className?: string
+} & Omit<ImgHTMLAttributes<HTMLImageElement>, 'src' | 'width' | 'height' | 'style' | 'className'>
+
+/**
+ * Lightweight replacement for next/image. Fixed images keep their intrinsic
+ * width/height (to reserve space and avoid layout shift); `fill` images are
+ * absolutely positioned to cover their relatively-positioned parent.
+ * Non-priority images load lazily and decode off the main thread.
+ */
+export function Img({
+  src,
+  alt = '',
+  width,
+  height,
+  fill,
+  priority,
+  sizes,
+  style,
+  className,
+  ...rest
+}: ImgProps) {
+  void sizes
+  const resolvedStyle: CSSProperties = fill
+    ? { position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', ...style }
+    : (style ?? {})
+
+  return (
+    <img
+      src={src}
+      alt={alt}
+      width={fill ? undefined : width}
+      height={fill ? undefined : height}
+      loading={priority ? 'eager' : 'lazy'}
+      fetchPriority={priority ? 'high' : 'auto'}
+      decoding="async"
+      style={resolvedStyle}
+      className={className}
+      {...rest}
+    />
+  )
+}

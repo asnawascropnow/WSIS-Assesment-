@@ -1,0 +1,80 @@
+import { ScrubText, SectionBand } from './motion-root'
+
+const LEADS = [
+  {
+    name: 'Kabeer',
+    role: 'Founder, CropNow',
+    text: 'Leads CropNow and the wider resource-intelligence initiative.',
+  },
+  {
+    name: 'Niki N Kalpa',
+    role: 'Senior Associate, Strategy — ALTTECH Foundation',
+    text: 'Supports strategy within the water and sustainability collaboration.',
+  },
+]
+
+const MENTORS = ['Dr. Hariharan Chandrashekar', 'Commander Haridas', 'U V Krishna Mohan Rao']
+
+function initials(name: string) {
+  const parts = name.replace(/^(Dr\.|Commander)\s+/, '').split(/\s+/)
+  return parts.length > 1 ? `${parts[0][0]}${parts[parts.length - 1][0]}` : parts[0][0]
+}
+
+export function Team() {
+  return (
+    <section id="team" className="team curtain" data-curtain data-tone="light" aria-labelledby="team-title">
+      <SectionBand title="The Team" reverse />
+      <div className="wrap">
+        <div className="team__head">
+          <div>
+            <span className="eyebrow">07 · The team</span>
+            <h2 id="team-title" className="h2" data-lines>
+              <span className="line">
+                <span>Experience That</span>
+              </span>
+              <span className="line">
+                <span>
+                  Supports <span className="serif">Action.</span>
+                </span>
+              </span>
+            </h2>
+          </div>
+          <ScrubText
+            className="body-lead"
+            text="The initiative brings together people working across resource intelligence, water solutions, strategy, and programme guidance."
+          />
+        </div>
+
+        <ul className="team__leads">
+          {LEADS.map((p, i) => (
+            <li key={p.name} className="person person--lead" data-reveal={i * 0.1}>
+              <span className="person__mono" aria-hidden="true">
+                {initials(p.name)}
+              </span>
+              <div>
+                <h3 className="h3">{p.name}</h3>
+                <p className="person__role">{p.role}</p>
+                <p className="person__text">{p.text}</p>
+              </div>
+            </li>
+          ))}
+        </ul>
+
+        <ul className="team__mentors">
+          {MENTORS.map((name, i) => (
+            <li key={name} className="person" data-reveal={i * 0.08}>
+              <span className="person__mono" aria-hidden="true">
+                {initials(name)}
+              </span>
+              <div>
+                <h3 className="h3">{name}</h3>
+                <p className="person__role">Mentor</p>
+                <p className="person__text">Provides guidance to the wider initiative.</p>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  )
+}

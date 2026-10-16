@@ -1,0 +1,27 @@
+type MotionBundle = {
+  gsap: typeof import('gsap').default
+  ScrollTrigger: typeof import('gsap/ScrollTrigger').ScrollTrigger
+  Lenis: typeof import('lenis').default
+}
+
+let bundle: Promise<MotionBundle> | null = null
+
+/**
+ * GSAP + ScrollTrigger + Lenis are heavy and only used for scroll animation, so
+ * they are imported lazily after first paint instead of blocking the initial
+ * bundle. The promise is memoised and the ScrollTrigger plugin registered once.
+ */
+export function loadMotion(): Promise<MotionBundle> {
+  if (!bundle) {
+    bundle = Promise.all([import('gsap'), import('gsap/ScrollTrigger'), import('lenis')]).then(
+      ([gsapModule, triggerModule, lenisModule]) => {
+        const gsap = gsapModule.default
+        const { ScrollTrigger } = triggerModule
+        gsap.registerPlugin(ScrollTrigger)
+        ScrollTrigger.config({ ignoreMobileResize: true })
+        return { gsap, ScrollTrigger, Lenis: lenisModule.default }
+      },
+    )
+  }
+  return bundle
+}
