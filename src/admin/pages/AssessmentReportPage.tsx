@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { ArrowLeft, FileSpreadsheet, Package, PencilLine, Printer } from 'lucide-react'
+import { ArrowLeft, FileSpreadsheet, Package, PencilLine, Printer, Trash2 } from 'lucide-react'
 import { questionnairesByType } from '../../data/questionnaires'
 import type { AssessmentType } from '../../types'
 import { useAdminAuth } from '../auth/useAdminAuth'
@@ -46,6 +46,10 @@ export function AssessmentReportPage() {
   const [reviewNotes, setReviewNotes] = useState('')
   const [savingReview, setSavingReview] = useState(false)
 
+  const [deleteOpen, setDeleteOpen] = useState(false)
+  const [deleting, setDeleting] = useState(false)
+  const [deleteError, setDeleteError] = useState('')
+
   const verificationByPath = useMemo(() => {
     const map = new Map<string, DocumentIndexRow>()
     for (const row of documentsQuery.data?.rows ?? []) {
@@ -68,6 +72,7 @@ export function AssessmentReportPage() {
   const canExport = roleCan(identity?.role, 'exports.run')
   const canReview = roleCan(identity?.role, 'assessments.review')
   const canDownload = roleCan(identity?.role, 'documents.download')
+  const canDelete = roleCan(identity?.role, 'assessments.delete')
 
   const openReview = () => {
     setReviewStatus(assessment.review_status)
@@ -89,6 +94,19 @@ export function AssessmentReportPage() {
       setActionError(caught instanceof Error ? caught.message : 'Could not update the review status.')
     } finally {
       setSavingReview(false)
+    }
+  }
+
+  const handleDelete = async () => {
+    setDeleteError('')
+    setDeleting(true)
+    try {
+      await adminApi('assessments.delete', { body: { type, id } })
+      navigate('/admin/assessments')
+    } catch (caught) {
+      setDeleteError(caught instanceof Error ? caught.message : 'Could not delete the assessment.')
+    } finally {
+      setDeleting(false)
     }
   }
 
@@ -204,6 +222,18 @@ export function AssessmentReportPage() {
               <PencilLine size={15} /> Change review status
             </button>
           ) : null}
+          {canDelete ? (
+            <button
+              type="button"
+              className="admin-btn danger"
+              onClick={() => {
+                setDeleteError('')
+                setDeleteOpen(true)
+              }}
+            >
+              <Trash2 size={15} /> Delete assessment
+            </button>
+          ) : null}
           <button type="button" className="admin-btn" onClick={() => window.print()}>
             <Printer size={15} /> Print
           </button>
@@ -291,6 +321,39 @@ export function AssessmentReportPage() {
               placeholder="Internal notes for this review. Original answers are never modified."
             />
           </div>
+        </Modal>
+      ) : null}
+
+      {deleteOpen ? (
+        <Modal
+          title="Delete assessment"
+          onClose={() => {
+            if (!deleting) setDeleteOpen(false)
+          }}
+          actions={
+            <>
+              <button type="button" className="admin-btn" onClick={() => setDeleteOpen(false)} disabled={deleting}>
+                Cancel
+              </button>
+              <button type="button" className="admin-btn danger" onClick={() => void handleDelete()} disabled={deleting}>
+                {deleting ? 'Deleting…' : 'Delete assessment'}
+              </button>
+            </>
+          }
+        >
+          <p>
+            Delete <strong>{assessment.organization_name || 'this assessment'}</strong> from{' '}
+            <strong>{ASSESSMENT_TYPE_LABEL[type]}</strong>? This permanently removes the submission, its answers and its{' '}
+            {assessment.attachments?.length ?? 0} stored document(s). This action cannot be undone.
+          </p>
+          <p className="admin-muted" style={{ margin: '6px 0 0' }}>
+            Assessment ID: <span className="admin-mono">{assessment.id}</span>
+          </p>
+          {deleteError ? (
+            <p className="admin-state error" style={{ margin: '12px 0 0' }} role="alert">
+              {deleteError}
+            </p>
+          ) : null}
         </Modal>
       ) : null}
     </div>

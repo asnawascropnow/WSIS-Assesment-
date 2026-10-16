@@ -74,8 +74,9 @@ begin
     execute format('create index if not exists %I on public.%I (submitted_at desc)', target || '_submitted_at_idx', target);
     execute format('create index if not exists %I on public.%I (review_status)', target || '_review_status_idx', target);
     execute format('create index if not exists %I on public.%I (organization_name)', target || '_organization_name_idx', target);
-    -- service_role may now read/update for admin actions.
-    execute format('grant select, update on table public.%I to service_role', target);
+    -- service_role may now read/update/delete for admin actions (delete powers
+    -- the console's per-assessment delete control).
+    execute format('grant select, update, delete on table public.%I to service_role', target);
   end loop;
 end
 $$;

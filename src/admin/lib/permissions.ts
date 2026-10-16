@@ -3,6 +3,7 @@ import type { AdminRole } from './types'
 export type Capability =
   | 'assessments.read'
   | 'assessments.review'
+  | 'assessments.delete'
   | 'organizations.read'
   | 'documents.read'
   | 'documents.download'
@@ -18,6 +19,7 @@ export const ROLE_CAPABILITIES: Record<AdminRole, ReadonlySet<Capability>> = {
   super_admin: new Set<Capability>([
     'assessments.read',
     'assessments.review',
+    'assessments.delete',
     'organizations.read',
     'documents.read',
     'documents.download',

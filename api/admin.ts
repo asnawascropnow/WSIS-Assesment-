@@ -35,6 +35,7 @@ type ReviewStatus = (typeof REVIEW_STATUSES)[number]
 type Capability =
   | 'assessments.read'
   | 'assessments.review'
+  | 'assessments.delete'
   | 'organizations.read'
   | 'documents.read'
   | 'documents.download'
@@ -48,6 +49,7 @@ const ROLE_CAPABILITIES: Record<AdminRole, ReadonlySet<Capability>> = {
   super_admin: new Set<Capability>([
     'assessments.read',
     'assessments.review',
+    'assessments.delete',
     'organizations.read',
     'documents.read',
     'documents.download',
@@ -411,6 +413,73 @@ async function updateReview(supabaseAdmin: SupabaseAdmin, actor: AdminActor, bod
   return json({ data: { review_status: data.review_status, review: data.review } })
 }
 
+async function deleteAssessment(supabaseAdmin: SupabaseAdmin, actor: AdminActor, body: Record<string, unknown>) {
+  const type = body.type
+  const id = body.id
+  if (!isAssessmentType(type) || typeof id !== 'string' || !/^[0-9a-f-]{36}$/i.test(id)) {
+    return fail('A valid assessment type and id are required.')
+  }
+
+  const table = TABLE_BY_TYPE[type]
+  const bucket = BUCKET_BY_TYPE[type]
+
+  const { data: row, error: fetchError } = await supabaseAdmin
+    .from(table)
+    .select('id, organization_name, attachments')
+    .eq('id', id)
+    .maybeSingle()
+
+  if (fetchError) throw fetchError
+  if (!row) return fail('Assessment not found.', 404)
+
+  // Delete the database row first: if this fails (for example when the role
+  // still lacks the DELETE grant) nothing has been changed yet, so the record
+  // and its files both stay intact and a retry is safe. A later storage
+  // failure only leaves recoverable orphan objects, which surface in the
+  // Orphan storage view.
+  const { error: deleteError } = await supabaseAdmin.from(table).delete().eq('id', id)
+  if (deleteError) {
+    if (deleteError.code === '42501') {
+      await writeAudit(supabaseAdmin, actor, 'assessment.deleted', type, id, 'failure', { stage: 'database' })
+      return fail(
+        'This project does not allow assessment deletion yet. Run the DELETE grant in supabase/admin.sql, then retry.',
+        500,
+      )
+    }
+    throw deleteError
+  }
+
+  const attachments: unknown[] = Array.isArray(row.attachments) ? row.attachments : []
+  const paths = attachments
+    .map((attachment: unknown): unknown =>
+      attachment && typeof attachment === 'object'
+        ? (attachment as { storage_path?: unknown }).storage_path
+        : null,
+    )
+    .filter((path: unknown): path is string => typeof path === 'string' && path.length > 0)
+
+  let removedFiles = 0
+  let orphanFiles = 0
+  if (paths.length > 0) {
+    const { error: storageError } = await supabaseAdmin.storage.from(bucket).remove(paths)
+    if (storageError) {
+      // The assessment itself is already gone; leftover files are orphans.
+      orphanFiles = paths.length
+      console.error('Assessment delete: storage cleanup failed:', storageError)
+    } else {
+      removedFiles = paths.length
+    }
+  }
+
+  await writeAudit(supabaseAdmin, actor, 'assessment.deleted', type, id, 'success', {
+    organizationName: typeof row.organization_name === 'string' ? row.organization_name : '',
+    fileCount: paths.length,
+    removedFiles,
+    orphanFiles,
+  })
+  return json({ data: { id, assessmentType: type, removedFiles, orphanFiles } })
+}
+
 async function verifyDocument(supabaseAdmin: SupabaseAdmin, actor: AdminActor, body: Record<string, unknown>) {
   const bucket = body.bucket
   const path = body.path
@@ -605,6 +674,7 @@ const REQUIRED_CAPABILITY: Record<string, Capability> = {
   audit: 'audit.read',
   settings: 'settings.read',
   'review.update': 'assessments.review',
+  'assessments.delete': 'assessments.delete',
   'document.verify': 'documents.verify',
   'audit.log': 'assessments.read',
   'users.create': 'users.manage',
@@ -677,6 +747,8 @@ const adminApi = withSupabase({ auth: 'user' }, async (request, ctx) => {
         return getSettings(actor)
       case 'review.update':
         return await updateReview(supabaseAdmin, actor, body)
+      case 'assessments.delete':
+        return await deleteAssessment(supabaseAdmin, actor, body)
       case 'document.verify':
         return await verifyDocument(supabaseAdmin, actor, body)
       case 'audit.log':

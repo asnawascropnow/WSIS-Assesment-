@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { ExternalLink, FileSpreadsheet, RotateCcw, Search } from 'lucide-react'
+import { ExternalLink, FileSpreadsheet, RotateCcw, Search, Trash2 } from 'lucide-react'
 import { questionnairesByType } from '../../data/questionnaires'
 import { useAdminAuth } from '../auth/useAdminAuth'
 import { useAdminQuery } from '../lib/useAdminQuery'
@@ -16,7 +16,7 @@ import {
   shortId,
 } from '../lib/format'
 import { roleCan } from '../lib/permissions'
-import { EmptyState, ErrorState, LoadingPanel, Pagination, ReviewStatusBadge } from '../components/ui'
+import { EmptyState, ErrorState, LoadingPanel, Modal, Pagination, ReviewStatusBadge } from '../components/ui'
 import type { AssessmentListItem, AssessmentRow, Paginated, ReviewStatus } from '../lib/types'
 
 const PAGE_SIZE = 20
@@ -37,6 +37,10 @@ export function AssessmentsPage() {
   const [exporting, setExporting] = useState<string | null>(null)
   const [exportError, setExportError] = useState('')
 
+  const [pendingDelete, setPendingDelete] = useState<AssessmentListItem | null>(null)
+  const [deleting, setDeleting] = useState(false)
+  const [deleteError, setDeleteError] = useState('')
+
   const debouncedSearch = useDebouncedValue(search, 350)
 
   const { data, error, loading, reload } = useAdminQuery<Paginated<AssessmentListItem>>('assessments', {
@@ -52,6 +56,7 @@ export function AssessmentsPage() {
   })
 
   const canExport = roleCan(identity?.role, 'exports.run')
+  const canDelete = roleCan(identity?.role, 'assessments.delete')
 
   const handleExportExcel = async (item: AssessmentListItem) => {
     setExportError('')
@@ -84,6 +89,29 @@ export function AssessmentsPage() {
     setSort('submitted_at')
     setDir('desc')
     setPage(1)
+  }
+
+  const handleDelete = async () => {
+    if (!pendingDelete) return
+    setDeleteError('')
+    setDeleting(true)
+    try {
+      await adminApi('assessments.delete', {
+        body: { type: pendingDelete.assessment_type, id: pendingDelete.id },
+      })
+      setPendingDelete(null)
+      // If that was the only row on a later page, step back so the user does
+      // not land on a now-empty page (changing `page` triggers a refetch).
+      if (data && data.rows.length === 1 && page > 1) {
+        setPage(page - 1)
+      } else {
+        await reload()
+      }
+    } catch (caught) {
+      setDeleteError(caught instanceof Error ? caught.message : 'Could not delete the assessment.')
+    } finally {
+      setDeleting(false)
+    }
   }
 
   return (
@@ -258,6 +286,18 @@ export function AssessmentsPage() {
                             <FileSpreadsheet size={13} /> {exporting === item.id ? '…' : 'Excel'}
                           </button>
                         ) : null}
+                        {canDelete ? (
+                          <button
+                            type="button"
+                            className="admin-btn small danger"
+                            onClick={() => {
+                              setDeleteError('')
+                              setPendingDelete(item)
+                            }}
+                          >
+                            <Trash2 size={13} /> Delete
+                          </button>
+                        ) : null}
                       </div>
                     </td>
                   </tr>
@@ -268,6 +308,40 @@ export function AssessmentsPage() {
           <Pagination page={data.page} pageSize={data.pageSize} total={data.total} onPage={setPage} />
         </>
       )}
+
+      {pendingDelete ? (
+        <Modal
+          title="Delete assessment"
+          onClose={() => {
+            if (!deleting) setPendingDelete(null)
+          }}
+          actions={
+            <>
+              <button type="button" className="admin-btn" onClick={() => setPendingDelete(null)} disabled={deleting}>
+                Cancel
+              </button>
+              <button type="button" className="admin-btn danger" onClick={() => void handleDelete()} disabled={deleting}>
+                {deleting ? 'Deleting…' : 'Delete assessment'}
+              </button>
+            </>
+          }
+        >
+          <p>
+            Delete the <strong>{ASSESSMENT_TYPE_LABEL[pendingDelete.assessment_type]}</strong> assessment from{' '}
+            <strong>{pendingDelete.organization_name || 'Untitled submission'}</strong>? This permanently removes the
+            submission, its answers and its {pendingDelete.document_count} stored document(s). This action cannot be
+            undone.
+          </p>
+          <p className="admin-muted" style={{ margin: '6px 0 0' }}>
+            Assessment ID: <span className="admin-mono">{pendingDelete.id}</span>
+          </p>
+          {deleteError ? (
+            <p className="admin-state error" style={{ margin: '12px 0 0' }} role="alert">
+              {deleteError}
+            </p>
+          ) : null}
+        </Modal>
+      ) : null}
     </div>
   )
 }
