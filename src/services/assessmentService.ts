@@ -106,19 +106,39 @@ export async function submitAssessment(assessment: AssessmentPayload) {
       throw new Error('A submission can contain no more than 100 attachments.')
     }
 
-    for (const upload of uploads) {
-      const safeFileName = upload.file.name.replace(/[^\w.-]+/g, '_').slice(0, 120)
-      const storagePath = `${assessmentId}/${crypto.randomUUID()}_${safeFileName}`
-      upload.attachment.bucket_id = bucketId
-      upload.attachment.storage_path = storagePath
-      const { error } = await supabase.storage
-        .from(bucketId)
-        .upload(storagePath, upload.file, {
-          contentType: upload.file.type,
-          upsert: false,
-        })
-      if (error) throw error
+    // Uploads previously ran one-by-one, so a handful of attachments added
+    // several seconds of dead time before the row insert. Run them in parallel
+    // (bounded, so we don't open dozens of simultaneous connections) and stop
+    // at the first failure.
+    const CONCURRENT_UPLOADS = 4
+    let cursor = 0
+    let firstError: Error | null = null
+
+    async function uploadWorker() {
+      while (cursor < uploads.length) {
+        if (firstError) return
+        const upload = uploads[cursor++]
+        const safeFileName = upload.file.name.replace(/[^\w.-]+/g, '_').slice(0, 120)
+        const storagePath = `${assessmentId}/${crypto.randomUUID()}_${safeFileName}`
+        upload.attachment.bucket_id = bucketId
+        upload.attachment.storage_path = storagePath
+        const { error } = await supabase.storage
+          .from(bucketId)
+          .upload(storagePath, upload.file, {
+            contentType: upload.file.type,
+            upsert: false,
+          })
+        if (error) {
+          firstError = error instanceof Error ? error : new Error(error.message)
+          return
+        }
+      }
     }
+
+    await Promise.all(
+      Array.from({ length: Math.min(CONCURRENT_UPLOADS, uploads.length) }, () => uploadWorker()),
+    )
+    if (firstError) throw firstError
 
     const submission = {
       id: assessmentId,
