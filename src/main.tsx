@@ -6,7 +6,6 @@ import App from './App.tsx'
 const container = document.getElementById('root')!
 
 if (window.location.pathname.startsWith('/admin')) {
-  // Admin console is code-split so the public questionnaire bundle stays lean.
   void import('./admin/AdminApp.tsx').then(({ AdminApp }) => {
     createRoot(container).render(
       <StrictMode>
@@ -15,7 +14,6 @@ if (window.location.pathname.startsWith('/admin')) {
     )
   })
 } else if (window.location.pathname.startsWith('/components')) {
-  // ui-layouts component gallery — code-split so it never touches the public app.
   void import('./components/gallery/UiGallery.tsx').then(({ UiGallery }) => {
     createRoot(container).render(
       <StrictMode>
@@ -24,13 +22,13 @@ if (window.location.pathname.startsWith('/admin')) {
     )
   })
 } else if (window.location.pathname.startsWith('/testing')) {
-  // Testing route: the same assessment form, with the sample-data helper turned
-  // on for every category. Attachments are served from the repo testing/ folder.
-  createRoot(container).render(
-    <StrictMode>
-      <App testingMode />
-    </StrictMode>,
-  )
+  void import('./AssessmentApp.tsx').then(({ default: AssessmentApp }) => {
+    createRoot(container).render(
+      <StrictMode>
+        <AssessmentApp testingMode />
+      </StrictMode>,
+    )
+  })
 } else {
   createRoot(container).render(
     <StrictMode>
