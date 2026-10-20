@@ -5,7 +5,13 @@ import App from './App.tsx'
 
 const container = document.getElementById('root')!
 
-if (window.location.pathname.startsWith('/admin')) {
+// The admin console lives at /admin; /assessment/admin is accepted as an alias
+// so the dashboard is also reachable from the assessment section. Must be
+// checked before the /assessment branch, which would otherwise render the form.
+const path = window.location.pathname
+const isAdminRoute = path.startsWith('/admin') || path.startsWith('/assessment/admin')
+
+if (isAdminRoute) {
   void import('./admin/AdminApp.tsx').then(({ AdminApp }) => {
     createRoot(container).render(
       <StrictMode>
