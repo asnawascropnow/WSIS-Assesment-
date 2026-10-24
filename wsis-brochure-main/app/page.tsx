@@ -8,7 +8,6 @@ import { Process } from '@/components/brochure/process'
 import { Infographic } from '@/components/brochure/infographic'
 import { Stages } from '@/components/brochure/stages'
 import { Solutions } from '@/components/brochure/solutions'
-import { Collaboration } from '@/components/brochure/collaboration'
 import { Projects } from '@/components/brochure/projects'
 import { Clients } from '@/components/brochure/clients'
 import { Team } from '@/components/brochure/team'
@@ -37,7 +36,6 @@ export default function Page() {
           <Infographic />
           <Stages />
           <Solutions />
-          <Collaboration />
         </section>
         <Projects />
         <Clients />

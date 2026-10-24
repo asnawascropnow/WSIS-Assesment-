@@ -17,29 +17,6 @@ const ORGANISATIONS: Organisation[] = [
   { name: 'Sisters of the Good Shepherd', logo: 'good-shepherd' },
 ]
 
-const SECTORS = [
-  {
-    title: 'Industry & Manufacturing',
-    text: 'Manufacturing, steel, chemicals, textiles, and other industrial operations.',
-    image: '/images/website/plant-aerial.jpg',
-    alt: 'Aerial view of a water treatment facility with circular tanks and pipe racks',
-  },
-  {
-    title: 'Commercial & Hospitality',
-    text: 'Technology parks, offices, hotels, clubs, and commercial buildings.',
-  },
-  {
-    title: 'Institutions & Healthcare',
-    text: 'Universities, colleges, schools, hospitals, and institutional facilities.',
-  },
-  {
-    title: 'Residential & Large Properties',
-    text: 'Residential communities, hospitality properties, golf clubs, and large estates.',
-    image: '/images/aud-residential.jpg',
-    alt: 'Residential apartment community',
-  },
-]
-
 function NameRow({ names, reverse }: { names: Organisation[]; reverse?: boolean }) {
   const group = (hidden: boolean) => (
     <span className="names__group" aria-hidden={hidden || undefined}>
@@ -71,7 +48,6 @@ export function Clients() {
       <SectionBand title="Clients & Sectors" />
       <div className="wrap clients__head">
         <div>
-          <span className="eyebrow">06 · Clients & sectors</span>
           <h2 id="clients-title" className="h2" data-lines>
             <span className="line">
               <span>Built for Different</span>
@@ -97,28 +73,6 @@ export function Clients() {
         </ul>
         <NameRow names={ORGANISATIONS.slice(0, half)} />
         <NameRow names={ORGANISATIONS.slice(half)} reverse />
-      </div>
-
-      <div className="wrap">
-        <h3 className="h3 sectors__title" data-reveal>
-          Sectors We Serve
-        </h3>
-        <ul className="sectors">
-          {SECTORS.map((s, i) => (
-            <li
-              key={s.title}
-              className={`sector${s.image ? ' sector--image' : ''} sector--${i + 1}`}
-              data-reveal={i * 0.08}
-            >
-              {s.image && <Image src={s.image} alt={s.alt ?? ''} fill sizes="(max-width: 900px) 100vw, 40vw" />}
-              <span className="sector__n" aria-hidden="true">{`0${i + 1}`}</span>
-              <div className="sector__copy">
-                <h4 className="h3">{s.title}</h4>
-                <p>{s.text}</p>
-              </div>
-            </li>
-          ))}
-        </ul>
       </div>
     </section>
   )

@@ -1,24 +1,45 @@
+import Image from 'next/image'
 import { ScrubText, SectionBand } from './motion-root'
 
-const LEADS = [
+type TeamMember = {
+  name: string
+  role: string
+  image: string
+  position?: string
+}
+
+const TEAM: TeamMember[] = [
   {
     name: 'Kabeer',
     role: 'Founder, CropNow',
-    text: 'Leads CropNow and the wider resource-intelligence initiative.',
+    image: '/images/team/kabeer-founder.jpg',
+    position: 'center center',
   },
   {
     name: 'Niki N Kalpa',
-    role: 'Senior Associate, Strategy — ALTTECH Foundation',
-    text: 'Supports strategy within the water and sustainability collaboration.',
+    role: 'Senior Associate, Strategy · AltTech Foundation',
+    image: '/images/team/niki-n-kalpa.jpg',
+    position: 'center center',
+  },
+  {
+    name: 'Dr. Hariharan Chandrashekar',
+    role: 'Mentor',
+    image: '/images/team/hariharan.jpg',
+    position: 'center center',
+  },
+  {
+    name: 'Commander Haridas',
+    role: 'Mentor',
+    image: '/images/team/haridas.jpg',
+    position: 'center 18%',
+  },
+  {
+    name: 'U V Krishna Mohan Rao',
+    role: 'Mentor',
+    image: '/images/team/krishna-mohan-rao.jpg',
+    position: '42% 20%',
   },
 ]
-
-const MENTORS = ['Dr. Hariharan Chandrashekar', 'Commander Haridas', 'U V Krishna Mohan Rao']
-
-function initials(name: string) {
-  const parts = name.replace(/^(Dr\.|Commander)\s+/, '').split(/\s+/)
-  return parts.length > 1 ? `${parts[0][0]}${parts[parts.length - 1][0]}` : parts[0][0]
-}
 
 export function Team() {
   return (
@@ -45,31 +66,21 @@ export function Team() {
           />
         </div>
 
-        <ul className="team__leads">
-          {LEADS.map((p, i) => (
-            <li key={p.name} className="person person--lead" data-reveal={i * 0.1}>
-              <span className="person__mono" aria-hidden="true">
-                {initials(p.name)}
-              </span>
-              <div>
-                <h3 className="h3">{p.name}</h3>
-                <p className="person__role">{p.role}</p>
-                <p className="person__text">{p.text}</p>
+        <ul className="team__grid">
+          {TEAM.map((p, i) => (
+            <li key={p.name} className="team-card" data-reveal={i * 0.08}>
+              <div className="team-card__media">
+                <Image
+                  src={p.image}
+                  alt={p.name}
+                  fill
+                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
+                  style={{ objectFit: 'cover', objectPosition: p.position ?? 'center center' }}
+                />
               </div>
-            </li>
-          ))}
-        </ul>
-
-        <ul className="team__mentors">
-          {MENTORS.map((name, i) => (
-            <li key={name} className="person" data-reveal={i * 0.08}>
-              <span className="person__mono" aria-hidden="true">
-                {initials(name)}
-              </span>
-              <div>
-                <h3 className="h3">{name}</h3>
-                <p className="person__role">Mentor</p>
-                <p className="person__text">Provides guidance to the wider initiative.</p>
+              <div className="team-card__meta">
+                <h3 className="team-card__name">{p.name}</h3>
+                <p className="team-card__role">{p.role}</p>
               </div>
             </li>
           ))}

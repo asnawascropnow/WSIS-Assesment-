@@ -299,7 +299,6 @@ export function Solutions() {
         <div className="wrap solutions__inner">
           <div className="solutions__top">
             <div>
-              <span className="eyebrow">All 11 services</span>
               <h3 id="solutions-title" className="h2" data-lines>
                 <span className="line">
                   <span>

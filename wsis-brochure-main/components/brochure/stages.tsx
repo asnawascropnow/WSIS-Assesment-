@@ -61,7 +61,6 @@ export function Stages() {
       <div className="wrap">
         <div className="jrny__head">
           <div>
-            <span className="eyebrow">Our five-stage approach · The journey of water</span>
             <h3 id="stages-title" className="h2" data-lines>
               <span className="line">
                 <span>

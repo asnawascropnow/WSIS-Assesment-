@@ -38,7 +38,6 @@ export function Collaboration() {
       <SectionBand title="Collaboration" />
       <div className="wrap">
         <div className="collab__head">
-          <span className="eyebrow">Three partners</span>
           <h3 id="collab-title" className="h2" data-lines>
             <span className="line">
               <span>The Collaboration</span>

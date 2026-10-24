@@ -97,7 +97,6 @@ export function Infographic() {
       <div className="wrap">
         <div className="system__head">
           <div>
-            <span className="eyebrow">The water system</span>
             <h3 id="system-title" className="h2" data-lines>
               <span className="line">
                 <span>What the</span>

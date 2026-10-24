@@ -43,7 +43,6 @@ export function Projects() {
       <div className="wrap">
         <div className="projects__head">
           <div>
-            <span className="eyebrow">05 · Recent projects</span>
             <h2 id="projects-title" className="h2" data-lines>
               <span className="line">
                 <span>Solutions in Real</span>

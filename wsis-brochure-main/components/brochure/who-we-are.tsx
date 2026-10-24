@@ -21,13 +21,6 @@ const CAPABILITIES: Capability[] = [
   { name: 'CropNow', role: 'The wider initiative' },
 ]
 
-const OUTCOMES = [
-  { value: '50–70%', label: 'less dependence on tankers and borewells' },
-  { value: '18–24', unit: 'months', label: 'typical return on investment' },
-]
-
-const PHASES = ['Assessment', 'Planning', 'Implementation', 'Monitoring']
-
 export function WhoWeAre() {
   return (
     <>
@@ -36,7 +29,6 @@ export function WhoWeAre() {
 
         <div className="wrap chapter__grid">
           <div className="chapter__aside">
-            <span className="eyebrow">Who we are</span>
             <div className="chapter__orb" data-clip>
               <Image
                 src="/images/website/clarifier-topdown.jpg"
@@ -86,9 +78,8 @@ export function WhoWeAre() {
       <section id="what-we-do" className="chapter chapter--dark curtain" data-curtain data-tone="dark" aria-labelledby="what-title">
         <SectionBand title="What We Do" reverse />
 
-        <div className="wrap chapter__grid chapter__grid--flip">
+        <div className="wrap chapter__grid">
           <div className="chapter__aside">
-            <span className="eyebrow">What we do</span>
             <div className="chapter__frame" data-clip>
               <Image
                 src="/images/website/self-reliant-campus.png"
@@ -108,33 +99,24 @@ export function WhoWeAre() {
               className="chapter__text"
               text="We help organisations assess their water use, identify losses, explore alternative water sources, improve treatment and reuse, and optimise water distribution."
             />
-            <ScrubText
-              className="chapter__text"
-              text="The result is less reliance on tankers and borewells, and an investment that typically pays for itself within 18 to 24 months."
-            />
-            <dl className="chapter__outcomes">
-              {OUTCOMES.map((o, i) => (
-                <div key={o.label} data-reveal={i * 0.08}>
-                  <dt>
-                    {o.value}
-                    {o.unit && <small>{o.unit}</small>}
-                  </dt>
-                  <dd>{o.label}</dd>
+
+            <div className="roi-card" data-reveal>
+              <div className="roi-card__metric-col">
+                <h3 className="roi-card__metric-label">
+                  Return on <span className="serif">Investment.</span>
+                </h3>
+                <div className="roi-card__metric">
+                  <span className="roi-card__num">18–24</span>
+                  <span className="roi-card__unit">months</span>
                 </div>
-              ))}
-            </dl>
-            <ScrubText
-              className="chapter__text"
-              text="Our approach connects site-level understanding with practical solutions, from the initial assessment and planning to implementation and monitoring, so that decisions reflect each site's actual requirements."
-            />
-            <ol className="chapter__phases" aria-label="Our approach">
-              {PHASES.map((p, i) => (
-                <li key={p} data-reveal={i * 0.08}>
-                  <span>{`0${i + 1}`}</span>
-                  {p}
-                </li>
-              ))}
-            </ol>
+              </div>
+              <div className="roi-card__divider" aria-hidden="true" />
+              <div className="roi-card__info">
+                <p className="roi-card__desc">
+                  Achieved through <span className="roi-card__highlight">50–70%</span> reduced dependence on purchased water tankers and borewells.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
