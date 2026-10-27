@@ -7,7 +7,8 @@ import react from '@vitejs/plugin-react'
 import { defineConfig, loadEnv } from 'vite'
 import type { Connect, Plugin, ViteDevServer } from 'vite'
 
-type ApiModule = { default: (request: Request) => Promise<Response> }
+type ApiHandler = (request: Request) => Promise<Response>
+type ApiModule = { default: ApiHandler | { fetch: ApiHandler } }
 
 const TESTING_MIME_TYPES: Record<string, string> = {
   '.png': 'image/png',
@@ -98,7 +99,8 @@ function createApiHandler(server: ViteDevServer, route: string, modulePath: stri
         init,
       )
       const apiModule = (await server.ssrLoadModule(modulePath)) as ApiModule
-      const response = await apiModule.default(request)
+      const apiHandler = apiModule.default
+      const response = await (typeof apiHandler === 'function' ? apiHandler(request) : apiHandler.fetch(request))
       outgoing.statusCode = response.status
       response.headers.forEach((value, name) => outgoing.setHeader(name, value))
       outgoing.end(await response.text())

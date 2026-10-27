@@ -251,5 +251,4 @@ const submitAssessment = withSupabase({ auth: 'publishable' }, async (request, {
   return Response.json({ ok: true, assessmentId: payload.row.id })
 })
 
-export const config = { runtime: 'edge' }
-export default submitAssessment
+export default { fetch: submitAssessment }

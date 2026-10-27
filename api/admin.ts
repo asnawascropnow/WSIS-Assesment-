@@ -770,5 +770,4 @@ const adminApi = withSupabase({ auth: 'user' }, async (request, ctx) => {
   }
 })
 
-export const config = { runtime: 'edge' }
-export default adminApi
+export default { fetch: adminApi }
