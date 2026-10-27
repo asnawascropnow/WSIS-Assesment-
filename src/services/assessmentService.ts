@@ -129,7 +129,8 @@ export async function submitAssessment(assessment: AssessmentPayload) {
             upsert: false,
           })
         if (error) {
-          firstError = error instanceof Error ? error : new Error(error.message)
+          const errMsg = (error as any)?.message ?? 'Upload failed'
+          firstError = error instanceof Error ? error : new Error(errMsg)
           return
         }
       }
@@ -165,7 +166,7 @@ export async function submitAssessment(assessment: AssessmentPayload) {
         ...submission,
       }),
     })
-    const result = await response.json().catch(() => null) as
+    const result = (await response.json().catch(() => null)) as
       | { ok?: boolean; assessmentId?: string; error?: string }
       | null
     if (!response.ok || !result?.ok || !result.assessmentId) {

@@ -1,5 +1,5 @@
 import { cn } from '@/lib/utils';
-import { Trash2 as RemoveIcon } from 'lucide-react';
+import { X } from 'lucide-react';
 import {
   type Dispatch,
   type SetStateAction,
@@ -289,14 +289,16 @@ export const FileUploaderItem = forwardRef<
       </div>
       <button
         type='button'
+        aria-label={`Remove file ${index + 1}`}
+        title={`Remove file`}
         className={cn(
-          'absolute bg-primary rounded-sm text-background p-1',
-          direction === 'rtl' ? 'top-1 left-1' : 'top-[0.145em] right-1'
+          'absolute rounded-full bg-red-500 text-white p-0.5 shadow-sm hover:bg-red-600 transition-colors',
+          direction === 'rtl' ? 'top-1 left-1' : 'top-1 right-1'
         )}
         onClick={() => removeFileFromSet(index)}
       >
         <span className='sr-only'>remove item {index}</span>
-        <RemoveIcon className='w-3 h-3 hover:stroke-destructive  duration-200 ease-in-out' />
+        <X className='w-3 h-3' />
       </button>
     </div>
   );

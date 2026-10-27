@@ -129,6 +129,10 @@ export default defineConfig(({ mode }) => {
           server.middlewares.use('/api/submissions', createApiHandler(server, '/api/submissions', '/api/submissions.ts'))
           server.middlewares.use('/api/admin', createApiHandler(server, '/api/admin', '/api/admin.ts'))
         },
+        configurePreviewServer(server) {
+          server.middlewares.use('/api/submissions', createApiHandler(server as unknown as ViteDevServer, '/api/submissions', '/api/submissions.ts'))
+          server.middlewares.use('/api/admin', createApiHandler(server as unknown as ViteDevServer, '/api/admin', '/api/admin.ts'))
+        },
       },
     ],
   }

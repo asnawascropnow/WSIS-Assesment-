@@ -19,9 +19,11 @@ export const MAX_ATTACHMENT_SIZE_BYTES = 10 * 1024 * 1024
 
 export const ALLOWED_ATTACHMENT_TYPES = [
   'image/jpeg',
+  'image/jpg',
   'image/png',
   'image/webp',
+  'image/gif',
   'application/pdf',
 ] as const
 
-export const ACCEPTED_ATTACHMENT_ATTRIBUTE = ALLOWED_ATTACHMENT_TYPES.join(',')
+export const ACCEPTED_ATTACHMENT_ATTRIBUTE = 'image/*,.jpg,.jpeg,.png,.webp,.pdf'

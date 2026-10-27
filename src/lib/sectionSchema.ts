@@ -49,7 +49,15 @@ function validateQuestion(
     if (value.some((file) => !(typeof File !== 'undefined' && file instanceof File))) {
       return 'Previously selected files must be selected again before submitting.'
     }
-    if (value.some((file: File) => !ALLOWED_ATTACHMENT_TYPES.includes(file.type as (typeof ALLOWED_ATTACHMENT_TYPES)[number]))) {
+    const allowedExt = ['jpg', 'jpeg', 'png', 'webp', 'pdf']
+    if (value.some((file: File) => {
+      const name = (file.name || '').toLowerCase()
+      const extMatch = name.match(/\.([a-z0-9]+)$/i)
+      const ext = extMatch ? extMatch[1] : name.split('.').pop() || ''
+      const mimeOk = ALLOWED_ATTACHMENT_TYPES.includes(file.type as (typeof ALLOWED_ATTACHMENT_TYPES)[number]) || file.type === 'image/jpg' || (file.type || '').startsWith('image/')
+      const extOk = allowedExt.includes(ext)
+      return !mimeOk && !extOk
+    })) {
       return 'Use JPG, PNG, WebP, or PDF files only.'
     }
     if (value.some((file: File) => file.size > MAX_ATTACHMENT_SIZE_BYTES)) {
