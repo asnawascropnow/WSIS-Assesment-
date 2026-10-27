@@ -1,9 +1,9 @@
 import {
   ALLOWED_ATTACHMENT_TYPES,
   MAX_ATTACHMENT_SIZE_BYTES,
-} from '../constants/assessment'
-import type { AssessmentType, QuestionDefinition, QuestionnaireSection, TableDefinition } from '../types'
-import type { SectionValues } from '../types'
+} from '../constants/assessment.js'
+import type { AssessmentType, QuestionDefinition, QuestionnaireSection, TableDefinition } from '../types/index.js'
+import type { SectionValues } from '../types/index.js'
 
 export const NOT_APPLICABLE_VALUES = new Set(['-', 'none', 'nil'])
 export const DRAFT_ATTACHMENT_RESELECT = '__attachment_requires_reselection__'

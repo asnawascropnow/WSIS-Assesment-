@@ -3,10 +3,10 @@ import {
   ALLOWED_ATTACHMENT_TYPES,
   MAX_ATTACHMENT_SIZE_BYTES,
   QUESTIONNAIRE_VERSIONS,
-} from '../src/constants/assessment.ts'
-import { questionnairesByType } from '../src/data/questionnaires/index.ts'
-import { getTableCellKey, isValidPhoneNumber, NOT_APPLICABLE_VALUES } from '../src/lib/sectionSchema.ts'
-import type { AssessmentType } from '../src/types/index.ts'
+} from '../src/constants/assessment.js'
+import { questionnairesByType } from '../src/data/questionnaires/index.js'
+import { getTableCellKey, isValidPhoneNumber, NOT_APPLICABLE_VALUES } from '../src/lib/sectionSchema.js'
+import type { AssessmentType } from '../src/types/index.js'
 
 const tableByType = {
   university: 'university_assessments',

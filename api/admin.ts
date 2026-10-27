@@ -4,8 +4,8 @@ import {
   ASSESSMENT_SCHEMA_VERSION,
   MAX_ATTACHMENT_SIZE_BYTES,
   QUESTIONNAIRE_VERSIONS,
-} from '../src/constants/assessment.ts'
-import type { AssessmentType } from '../src/types/index.ts'
+} from '../src/constants/assessment.js'
+import type { AssessmentType } from '../src/types/index.js'
 
 // ---------------------------------------------------------------------------
 // Constants
