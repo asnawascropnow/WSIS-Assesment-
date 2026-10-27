@@ -1,6 +1,6 @@
 import type { Questionnaire } from '../../types/questionnaire'
 
-const question = (id: string, label: string, example = '', inputType: 'text' | 'textarea' | 'number' | 'email' | 'url' | 'table' | 'file' = 'textarea') => ({
+const question = (id: string, label: string, example = '', inputType: 'text' | 'textarea' | 'number' | 'email' | 'url' | 'tel' | 'table' | 'file' = 'textarea') => ({
   id,
   question: label,
   example,
@@ -37,7 +37,8 @@ export const industrialQuestionnaire: Questionnaire = {
         question('registered_and_site_address', 'Registered Office and Industrial Site Address', 'Provide the registered office address and the exact address of the facility being assessed. Identify the site covered if the company operates multiple locations.'),
         question('maps_url', 'Google Maps Location URL', 'Provide a direct Google Maps pin or search link to the industrial facility.', 'url'),
         question('primary_contact', 'Primary Contact Person and Designation', 'Name and designation of the person coordinating the assessment, such as plant head, facility manager, EHS manager or utilities manager.', 'text'),
-        question('official_email_and_contacts', 'Official Email Address and Contact Numbers', 'Provide the official email, primary mobile number with country code and alternate contact number, if available.'),
+        question('official_email', 'Official Email Address', 'Provide the official email address of the coordinating contact.', 'email'),
+        question('official_contact_numbers', 'Contact Numbers', 'Primary mobile number with country code and alternate contact number, if available.', 'tel'),
         question('sector_and_products', 'Industry Sector and Main Products', 'Specify the industry category, products manufactured or processed, major production lines and water-intensive processes.'),
         question('ownership_and_facility_type', 'Ownership and Facility Type', 'Private/public-sector/PSU/joint venture/other; standalone factory, industrial campus, warehouse, technology park or multi-unit facility.'),
         question('site_area', 'Total Site Area and Built-up Area', 'Total plot area in acres or square metres and total built-up area.'),

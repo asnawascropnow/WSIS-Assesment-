@@ -9,6 +9,7 @@ type SidebarProps = {
   completed: number
   total: number
   onSelectSection: (index: number) => void
+  onBackToHomepage: () => void
 }
 
 export function Sidebar({
@@ -18,13 +19,15 @@ export function Sidebar({
   completed,
   total,
   onSelectSection,
+  onBackToHomepage,
 }: SidebarProps) {
   return (
     <aside className="sidebar">
       <div className="brand-box">
-        <a href="/" aria-label="Back to home">
-          <img className="brand-logo" src="/akashbhumi-logo.webp" alt="Akash Bhumi" />
-        </a>
+        <img className="brand-logo" src="/akashbhumi-logo.png" alt="Akash Bhumi" />
+        <button type="button" className="secondary-button home-button" onClick={onBackToHomepage}>
+          Back to Homepage
+        </button>
       </div>
 
       <ProgressPanel completed={completed} total={total} />

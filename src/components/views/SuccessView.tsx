@@ -14,7 +14,7 @@ export function SuccessView({ onRestart }: SuccessViewProps) {
         </div>
         <h1>Submission confirmed</h1>
         <p className="welcome-copy">
-          Your assessment has been accepted and stored in the configured Firebase-backed workflow. You can start
+          Your assessment has been accepted and stored securely. You can start
           another assessment whenever you’re ready.
         </p>
         <button type="button" className="primary-button large-button" onClick={onRestart}>

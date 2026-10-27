@@ -1,6 +1,6 @@
 import type { Questionnaire } from '../../types/questionnaire'
 
-type OrganizationInputType = 'text' | 'textarea' | 'number' | 'email' | 'url' | 'table' | 'file'
+type OrganizationInputType = 'text' | 'textarea' | 'number' | 'email' | 'url' | 'tel' | 'table' | 'file'
 
 const question = (id: string, label: string, example = '', inputType: OrganizationInputType = 'textarea') => ({
   id,
@@ -34,7 +34,8 @@ export const organizationQuestionnaire: Questionnaire = {
         question('registered_site_address', 'Registered Office and Site Address', 'Provide the registered office address and the exact address of the building or campus covered by the assessment. If multiple locations exist, specify the location being assessed.'),
         question('maps_url', 'Google Maps Location URL', 'Provide a direct Google Maps pin or search link to the office, campus or commercial facility.', 'url'),
         question('primary_contact', 'Primary Contact Person and Designation', 'Name and designation of the person coordinating the assessment, such as administration head, facility manager, operations manager, EHS manager or sustainability lead.', 'text'),
-        question('official_email_contacts', 'Official Email Address and Contact Numbers', 'Provide the official email address, primary phone number with country code and an alternate contact number, if available.', 'text'),
+        question('official_email', 'Official Email Address', 'Provide the official email address of the coordinating contact.', 'email'),
+        question('official_contact_numbers', 'Contact Numbers', 'Primary phone number with country code and an alternate contact number, if available.', 'tel'),
         question('ownership_occupancy_arrangement', 'Ownership / Occupancy Arrangement', 'State whether the organization owns, leases or manages the building. If leased, identify the landlord, property manager and responsibilities for water bills, treatment plants, meters and maintenance.'),
         question('site_area_built_up_area', 'Total Site Area and Built-up Area', "Provide plot area, total built-up area, number of floors and the area occupied by the organization. If the building is shared, distinguish total building area from the organization's leased/occupied area."),
         table('building_rooftop_details', 'Building and rooftop details', ['Building / block', 'Number of buildings', 'Floors', 'Built-up area', 'Rooftop area', 'Remarks'], [

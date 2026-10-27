@@ -7,7 +7,7 @@ import {
 } from '../constants/assessment'
 import { questionnairesByType } from '../data/questionnaires'
 import { clearDraft, loadDraft, saveDraft } from '../lib/draftStorage'
-import { createDefaultSectionValues, makeSectionSchema } from '../lib/sectionSchema'
+import { createDefaultSectionValues, validateQuestionnaireSection } from '../lib/sectionSchema'
 import { submitAssessment } from '../services/assessmentService'
 import type { AssessmentType, FormValues, SaveStatus, WizardView } from '../types'
 import { useDraftAutosave } from './useDraftAutosave'
@@ -44,22 +44,17 @@ export function useAssessmentWizard() {
 
   const validateCurrentSection = () => {
     const sectionValues = form.getValues()[currentSection.id] ?? {}
-    const parsed = makeSectionSchema(currentSection).safeParse(sectionValues)
+    const validationError = validateQuestionnaireSection(currentSection, sectionValues, assessmentType)
 
-    if (!parsed.success) {
+    if (validationError) {
       form.clearErrors()
-      parsed.error.issues.forEach((issue) => {
-        const fieldPath = issue.path.length ? `${currentSection.id}.${issue.path.join('.')}` : currentSection.id
-        form.setError(fieldPath as never, {
-          type: 'manual',
-          message: issue.message,
-        })
+      const fieldPath = `${currentSection.id}.${validationError.questionId}`
+      form.setError(fieldPath as never, {
+        type: 'manual',
+        message: validationError.message,
       })
-      const firstError = parsed.error.issues[0]?.path[0]
-      if (firstError) {
-        const input = document.getElementById(`${currentSection.id}.${String(firstError)}`) as HTMLElement | null
-        if (input) input.focus()
-      }
+      const input = document.getElementById(fieldPath) as HTMLElement | null
+      if (input) input.focus()
       return false
     }
 
@@ -71,27 +66,16 @@ export function useAssessmentWizard() {
     form.clearErrors()
     for (const [sectionIndex, section] of activeQuestionnaire.sections.entries()) {
       const sectionValues = form.getValues()[section.id] ?? {}
-      const parsed = makeSectionSchema(section).safeParse(sectionValues)
-      const requiredQuestion = section.questions.find((question) => {
-        if (!question.required) return false
-        const value = sectionValues[question.id]
-        if (typeof value === 'string') return value.trim().length === 0
-        if (Array.isArray(value)) return value.length === 0
-        return value === undefined || value === null || value === ''
-      })
+      const validationError = validateQuestionnaireSection(section, sectionValues, assessmentType)
 
-      if (!parsed.success || requiredQuestion) {
-        const firstIssue = parsed.success ? undefined : parsed.error.issues[0]
-        const questionId = requiredQuestion?.id ?? firstIssue?.path[0]
-        if (questionId) {
-          form.setError(`${section.id}.${String(questionId)}` as never, {
-            type: requiredQuestion ? 'required' : 'manual',
-            message: requiredQuestion ? 'This field is required.' : firstIssue?.message ?? 'Check this answer.',
-          })
-        }
+      if (validationError) {
+        form.setError(`${section.id}.${validationError.questionId}` as never, {
+          type: 'manual',
+          message: validationError.message,
+        })
         setCurrentSectionIndex(sectionIndex)
         setView('wizard')
-        setSubmitError('Please fix the highlighted answer before submitting.')
+        setSubmitError(`Complete the required answer in “${section.title}” before submitting.`)
         scrollFormToTop()
         return false
       }
@@ -148,6 +132,7 @@ export function useAssessmentWizard() {
       (values.general_information as Record<string, unknown> | undefined)?.institution_name ??
         (values.industry_general_information as Record<string, unknown> | undefined)?.organisation_name ??
         (values.organization_general_information as Record<string, unknown> | undefined)?.organization_name ??
+        (values.apartment_general_information as Record<string, unknown> | undefined)?.apartment_community_name ??
         '',
     )
     const result = await submitAssessment({
@@ -184,6 +169,11 @@ export function useAssessmentWizard() {
     setView('welcome')
   }
 
+  const backToHomepage = () => {
+    saveCurrentDraft()
+    setView('welcome')
+  }
+
   const editSection = (sectionId: string) => {
     setCurrentSectionIndex(activeQuestionnaire.sections.findIndex((item) => item.id === sectionId))
     setView('wizard')
@@ -199,6 +189,7 @@ export function useAssessmentWizard() {
 
   return {
     activeQuestionnaire,
+    assessmentType,
     currentSection,
     currentSectionIndex,
     completedSections,
@@ -215,6 +206,7 @@ export function useAssessmentWizard() {
     handlePrevious,
     handleSubmit,
     resetAssessment,
+    backToHomepage,
     editSection,
     backToForm,
     selectSection,

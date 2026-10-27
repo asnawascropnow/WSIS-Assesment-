@@ -5,9 +5,10 @@ import { WelcomeView } from './components/views/WelcomeView'
 import { AssessmentWizard } from './components/wizard/AssessmentWizard'
 import { useAssessmentWizard } from './hooks/useAssessmentWizard'
 
-export default function AssessmentApp() {
+export default function AssessmentApp({ testingMode = false }: { testingMode?: boolean }) {
   const {
     activeQuestionnaire,
+    assessmentType,
     currentSection,
     currentSectionIndex,
     completedSections,
@@ -24,6 +25,7 @@ export default function AssessmentApp() {
     handlePrevious,
     handleSubmit,
     resetAssessment,
+    backToHomepage,
     editSection,
     backToForm,
     selectSection,
@@ -51,6 +53,7 @@ export default function AssessmentApp() {
         return (
           <AssessmentWizard
             activeQuestionnaire={activeQuestionnaire}
+            assessmentType={assessmentType}
             currentSection={currentSection}
             currentSectionIndex={currentSectionIndex}
             completedSections={completedSections}
@@ -61,10 +64,16 @@ export default function AssessmentApp() {
             onPrevious={handlePrevious}
             onSaveProgress={saveCurrentDraft}
             onNext={handleNext}
+            onBackToHomepage={backToHomepage}
+            testingMode={testingMode}
           />
         )
     }
   }
 
-  return <FormProvider {...form}>{renderView()}</FormProvider>
+  return (
+    <FormProvider {...form}>
+      <div className="public-app">{renderView()}</div>
+    </FormProvider>
+  )
 }

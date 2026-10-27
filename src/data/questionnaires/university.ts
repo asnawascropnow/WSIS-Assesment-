@@ -49,7 +49,7 @@ export const universityQuestionnaire: Questionnaire = {
           id: 'mobile_numbers',
           question: 'Mobile Number and Alternate Contact Number',
           example: 'Primary contact number with country code, plus an alternate number if available.',
-          inputType: 'text',
+          inputType: 'tel',
           placeholder: '+91 98765 43210 / +91 98765 43211',
         },
         {

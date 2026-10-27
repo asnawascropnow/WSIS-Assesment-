@@ -1,7 +1,12 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
   "plugins": ["react", "typescript", "oxc"],
-  "ignorePatterns": ["wsis-brochure-main/**"],
+  "ignorePatterns": [
+    "src/components/ui/**",
+    "src/components/website/**",
+    "src/components/gallery/demos/**",
+    "src/hooks/use-media-query.tsx"
+  ],
   "rules": {
     "react/rules-of-hooks": "error",
     "react/only-export-components": ["warn", { "allowConstantExport": true }]

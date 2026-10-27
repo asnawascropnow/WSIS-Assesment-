@@ -1,4 +1,5 @@
 import { DEFAULT_ASSESSMENT_TYPE, DRAFT_STORAGE_KEY } from '../constants/assessment'
+import { DRAFT_ATTACHMENT_RESELECT } from './sectionSchema'
 import type { AssessmentType } from '../types'
 
 export type DraftState = Record<string, unknown>
@@ -25,7 +26,11 @@ export function saveDraft(data: DraftState, assessmentType: AssessmentType = DEF
   if (typeof window === 'undefined') return
 
   try {
-    window.localStorage.setItem(getDraftStorageKey(assessmentType), JSON.stringify(data))
+    const serialized = JSON.stringify(data, (_key, value: unknown) => {
+      if (typeof File !== 'undefined' && value instanceof File) return DRAFT_ATTACHMENT_RESELECT
+      return value
+    })
+    window.localStorage.setItem(getDraftStorageKey(assessmentType), serialized)
   } catch {
     // ignore local storage quota issues
   }

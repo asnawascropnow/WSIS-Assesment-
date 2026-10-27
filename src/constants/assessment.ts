@@ -9,9 +9,10 @@ export const DRAFT_STORAGE_KEY = 'water-assessment-draft-v1'
 export const AUTOSAVE_DELAY_MS = 400
 
 export const QUESTIONNAIRE_VERSIONS: Record<AssessmentType, string> = {
-  university: 'university-1.0',
-  industry: 'industrial-1.0',
-  organization: 'organization-1.0',
+  university: 'university-1.1',
+  industry: 'industrial-1.1',
+  organization: 'organization-1.1',
+  apartment: 'apartment-1.1',
 }
 
 export const MAX_ATTACHMENT_SIZE_BYTES = 10 * 1024 * 1024
