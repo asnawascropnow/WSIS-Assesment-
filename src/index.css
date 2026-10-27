@@ -690,6 +690,26 @@ body:has(.public-app) { background: #f5f4ef; }
   animation: pub-rise .5s cubic-bezier(.22, 1, .36, 1) both;
 }
 .public-app .review-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 20px; }
+.public-app .submission-progress {
+  max-width: 1000px;
+  margin: 14px auto 0;
+  padding: 14px;
+  border: var(--line);
+  background: var(--canvas);
+}
+.public-app .submission-progress-heading { display: flex; justify-content: space-between; gap: 12px; font-size: .88rem; }
+.public-app .submission-progress-heading strong { font-weight: 900; }
+.public-app .submission-progress-heading span { font-weight: 800; }
+.public-app .submission-progress-track {
+  height: 14px;
+  margin-top: 9px;
+  border: 1.5px solid var(--ink);
+  background: #fff;
+  overflow: hidden;
+}
+.public-app .submission-progress-track span { display: block; height: 100%; background: var(--lime); transition: width .3s ease; }
+.public-app .submission-progress p { margin: 8px 0 0; color: var(--text-2); font-size: .84rem; }
+.public-app .submission-progress.is-error .submission-progress-track span { background: #d75a4a; }
 .public-app .review-section {
   margin-top: 14px;
   padding: 18px;

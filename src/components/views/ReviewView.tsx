@@ -194,6 +194,36 @@ function ReviewSection({
   )
 }
 
+function SubmissionProgressPanel({ progress }: { progress: SubmissionProgress }) {
+  const stageLabel = {
+    preparing: 'Processing answers',
+    uploading: progress.total > 0 ? 'Updating files' : 'Processing files',
+    submitting: 'Saving submission',
+    complete: 'Submission complete',
+    error: 'Submission stopped',
+  }[progress.stage]
+
+  return (
+    <section className={`submission-progress${progress.stage === 'error' ? ' is-error' : ''}`} aria-live="polite">
+      <div className="submission-progress-heading">
+        <strong>{stageLabel}</strong>
+        <span>{progress.percent}%</span>
+      </div>
+      <div
+        className="submission-progress-track"
+        role="progressbar"
+        aria-label={stageLabel}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={progress.percent}
+      >
+        <span style={{ width: `${progress.percent}%` }} />
+      </div>
+      <p>{progress.message}</p>
+    </section>
+  )
+}
+
 export function ReviewView({
   activeQuestionnaire,
   submitError,
@@ -247,6 +277,7 @@ export function ReviewView({
             <ArrowRight size={16} />
           </button>
         </div>
+        {submitProgress ? <SubmissionProgressPanel progress={submitProgress} /> : null}
       </div>
     </div>
   )
