@@ -2,11 +2,13 @@ import { ArrowLeft, ArrowRight, FileText, ShieldCheck } from 'lucide-react'
 import { useFormContext } from 'react-hook-form'
 import { DRAFT_ATTACHMENT_RESELECT, getTableCellKey, NOT_APPLICABLE_VALUES } from '../../lib/sectionSchema'
 import type { FormValues, QuestionDefinition, Questionnaire, QuestionnaireSection, TableDefinition } from '../../types'
+import type { SubmissionProgress } from '../../services/assessmentService'
 
 type ReviewViewProps = {
   activeQuestionnaire: Questionnaire
   submitError: string
   isSubmitting: boolean
+  submitProgress?: SubmissionProgress | null
   onEditSection: (sectionId: string) => void
   onBackToForm: () => void
   onSubmit: () => void
@@ -196,6 +198,7 @@ export function ReviewView({
   activeQuestionnaire,
   submitError,
   isSubmitting,
+  submitProgress,
   onEditSection,
   onBackToForm,
   onSubmit,
@@ -240,7 +243,7 @@ export function ReviewView({
             disabled={isSubmitting}
             aria-busy={isSubmitting}
           >
-            {isSubmitting ? 'Submitting…' : 'Submit Assessment'}
+            {isSubmitting ? 'Submitting...' : 'Submit Assessment'}
             <ArrowRight size={16} />
           </button>
         </div>

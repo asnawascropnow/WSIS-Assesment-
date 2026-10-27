@@ -8,7 +8,7 @@ import {
 import { questionnairesByType } from '../data/questionnaires'
 import { clearDraft, loadDraft, saveDraft } from '../lib/draftStorage'
 import { createDefaultSectionValues, validateQuestionnaireSection } from '../lib/sectionSchema'
-import { submitAssessment } from '../services/assessmentService'
+import { submitAssessment, type SubmissionProgress } from '../services/assessmentService'
 import type { AssessmentType, FormValues, SaveStatus, WizardView } from '../types'
 import { useDraftAutosave } from './useDraftAutosave'
 
@@ -28,6 +28,7 @@ export function useAssessmentWizard() {
   const [saveStatus, setSaveStatus] = useState<SaveStatus>('saved')
   const [submitError, setSubmitError] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitProgress, setSubmitProgress] = useState<SubmissionProgress | null>(null)
   const mainPanelRef = useRef<HTMLElement>(null)
   const currentSection = activeQuestionnaire.sections[currentSectionIndex]
 
@@ -127,6 +128,7 @@ export function useAssessmentWizard() {
     setSubmitError('')
     if (!validateAllSections()) return
     setIsSubmitting(true)
+    setSubmitProgress({ stage: 'preparing', message: 'Preparing submission...', percent: 5, uploaded: 0, total: 0 })
     const values = form.getValues()
     const institutionName = String(
       (values.general_information as Record<string, unknown> | undefined)?.institution_name ??
@@ -135,21 +137,24 @@ export function useAssessmentWizard() {
         (values.apartment_general_information as Record<string, unknown> | undefined)?.apartment_community_name ??
         '',
     )
-    const result = await submitAssessment({
-      schemaVersion: ASSESSMENT_SCHEMA_VERSION,
-      assessmentType,
-      status: 'submitted',
-      institutionName,
-      questionnaireVersion: QUESTIONNAIRE_VERSIONS[assessmentType],
-      answers: values,
-      metadata: {
-        createdBy: null,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        submittedAt: new Date().toISOString(),
+    const result = await submitAssessment(
+      {
+        schemaVersion: ASSESSMENT_SCHEMA_VERSION,
+        assessmentType,
+        status: 'submitted',
+        institutionName,
+        questionnaireVersion: QUESTIONNAIRE_VERSIONS[assessmentType],
+        answers: values,
+        metadata: {
+          createdBy: null,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          submittedAt: new Date().toISOString(),
+        },
+        attachments: [],
       },
-      attachments: [],
-    })
+      (progress) => setSubmitProgress(progress),
+    )
 
     if (!result.ok) {
       setSubmitError(result.error ?? 'Submission failed. Please retry.')
@@ -159,6 +164,7 @@ export function useAssessmentWizard() {
 
     clearDraft(assessmentType)
     setIsSubmitting(false)
+    setSubmitProgress({ stage: 'complete', message: 'Submission complete!', percent: 100, uploaded: 0, total: 0 })
     setView('success')
   }
 
@@ -197,6 +203,7 @@ export function useAssessmentWizard() {
     saveStatus,
     submitError,
     isSubmitting,
+    submitProgress,
     view,
     form,
     mainPanelRef,

@@ -4,6 +4,16 @@ import type { AssessmentType } from '../types'
 
 const ALLOWED_ATTACHMENT_TYPE_SET = new Set<string>(ALLOWED_ATTACHMENT_TYPES)
 
+export type SubmissionProgressStage = 'preparing' | 'uploading' | 'submitting' | 'complete' | 'error'
+
+export type SubmissionProgress = {
+  stage: SubmissionProgressStage
+  message: string
+  percent: number
+  uploaded: number
+  total: number
+}
+
 type AssessmentAttachment = {
   section_id: string
   question_id: string
@@ -78,10 +88,15 @@ export type AssessmentPayload = {
   attachments: unknown[]
 }
 
-export async function submitAssessment(assessment: AssessmentPayload) {
+export async function submitAssessment(
+  assessment: AssessmentPayload,
+  onProgress?: (progress: SubmissionProgress) => void,
+) {
   const uploads: PendingUpload[] = []
 
   try {
+    onProgress?.({ stage: 'preparing', message: 'Preparing submission...', percent: 5, uploaded: 0, total: 0 })
+
     const assessmentId = crypto.randomUUID()
     const bucketByType = {
       university: 'university-assessment-files',
@@ -113,6 +128,14 @@ export async function submitAssessment(assessment: AssessmentPayload) {
     const CONCURRENT_UPLOADS = 4
     let cursor = 0
     let firstError: Error | null = null
+    let uploadedCount = 0
+    const totalUploads = uploads.length
+
+    if (totalUploads > 0) {
+      onProgress?.({ stage: 'uploading', message: `Uploading files (0/${totalUploads})...`, percent: 10, uploaded: 0, total: totalUploads })
+    } else {
+      onProgress?.({ stage: 'uploading', message: 'Processing files...', percent: 15, uploaded: 0, total: 0 })
+    }
 
     async function uploadWorker() {
       while (cursor < uploads.length) {
@@ -133,6 +156,9 @@ export async function submitAssessment(assessment: AssessmentPayload) {
           firstError = error instanceof Error ? error : new Error(errMsg)
           return
         }
+        uploadedCount++
+        const percent = totalUploads === 0 ? 40 : 10 + Math.round((uploadedCount / totalUploads) * 40)
+        onProgress?.({ stage: 'uploading', message: `Uploading files (${uploadedCount}/${totalUploads})...`, percent, uploaded: uploadedCount, total: totalUploads })
       }
     }
 
@@ -140,6 +166,8 @@ export async function submitAssessment(assessment: AssessmentPayload) {
       Array.from({ length: Math.min(CONCURRENT_UPLOADS, uploads.length) }, () => uploadWorker()),
     )
     if (firstError) throw firstError
+
+    onProgress?.({ stage: 'submitting', message: 'Saving submission...', percent: 70, uploaded: uploadedCount, total: totalUploads })
 
     const submission = {
       id: assessmentId,
@@ -173,9 +201,11 @@ export async function submitAssessment(assessment: AssessmentPayload) {
       throw new Error(result?.error ?? `Submission API failed with status ${response.status}.`)
     }
 
+    onProgress?.({ stage: 'complete', message: 'Submission complete!', percent: 100, uploaded: uploadedCount, total: totalUploads })
     return { ok: true, assessmentId }
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error'
+    onProgress?.({ stage: 'error', message: message, percent: 100, uploaded: 0, total: 0 })
     return { ok: false, error: message }
   }
 }

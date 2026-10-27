@@ -16,6 +16,7 @@ export default function AssessmentApp({ testingMode = false }: { testingMode?: b
     saveStatus,
     submitError,
     isSubmitting,
+    submitProgress,
     view,
     form,
     mainPanelRef,
@@ -41,6 +42,7 @@ export default function AssessmentApp({ testingMode = false }: { testingMode?: b
             activeQuestionnaire={activeQuestionnaire}
             submitError={submitError}
             isSubmitting={isSubmitting}
+            submitProgress={submitProgress}
             onEditSection={editSection}
             onBackToForm={backToForm}
             onSubmit={handleSubmit}
