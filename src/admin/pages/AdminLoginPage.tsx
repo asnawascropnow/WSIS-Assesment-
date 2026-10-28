@@ -10,7 +10,7 @@ export function AdminLoginPage() {
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
 
-  if (status === 'authenticated') return <Navigate to="/admin" replace />
+  if (status === 'authenticated') return <Navigate to="/" replace />
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault()

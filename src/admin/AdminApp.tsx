@@ -44,13 +44,14 @@ function CapabilityGate({ capability, children }: { capability: Capability; chil
 }
 
 export function AdminApp() {
+  const base = window.location.pathname.startsWith('/assessment/admin') ? '/assessment/admin' : '/admin'
   return (
     <AdminAuthProvider>
-      <BrowserRouter>
+      <BrowserRouter basename={base}>
         <Routes>
-          <Route path="/admin/login" element={<AdminLoginPage />} />
+          <Route path="/login" element={<AdminLoginPage />} />
           <Route
-            path="/admin"
+            path="/"
             element={
               <RequireAdmin>
                 <AdminLayout />
@@ -122,9 +123,9 @@ export function AdminApp() {
                 </CapabilityGate>
               }
             />
-            <Route path="*" element={<Navigate to="/admin" replace />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Route>
-          <Route path="*" element={<Navigate to="/admin" replace />} />
+          <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       </BrowserRouter>
     </AdminAuthProvider>
