@@ -31,7 +31,10 @@ function FullScreenLoading() {
 function RequireAdmin({ children }: { children: ReactNode }) {
   const { status } = useAdminAuth()
   if (status === 'loading') return <FullScreenLoading />
-  if (status !== 'authenticated') return <Navigate to="/admin/login" replace />
+  if (status !== 'authenticated') {
+    const base = window.location.pathname.startsWith('/assessment/admin') ? '/assessment/admin' : '/admin'
+    return <Navigate to={`${base}/login`} replace />
+  }
   return <>{children}</>
 }
 
@@ -60,6 +63,7 @@ export function AdminApp() {
             }
           >
             <Route index element={<Navigate to="assessments" replace />} />
+            <Route index path="admin" element={<Navigate to="assessments" replace />} />
           </Route>
           <Route
             path="/admin"
@@ -136,7 +140,7 @@ export function AdminApp() {
             />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Route>
-          <Route path="*" element={<Navigate to={base === '/assessment/admin' ? '/assessment/admin/login' : '/admin/login'} replace />} />
+          <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       </BrowserRouter>
     </AdminAuthProvider>
