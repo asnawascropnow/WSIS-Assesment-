@@ -50,8 +50,19 @@ export function AdminApp() {
       <BrowserRouter basename={base}>
         <Routes>
           <Route path="/login" element={<AdminLoginPage />} />
+          <Route path="/admin/login" element={<AdminLoginPage />} />
           <Route
             path="/"
+            element={
+              <RequireAdmin>
+                <AdminLayout />
+              </RequireAdmin>
+            }
+          >
+            <Route index element={<Navigate to="assessments" replace />} />
+          </Route>
+          <Route
+            path="/admin"
             element={
               <RequireAdmin>
                 <AdminLayout />
@@ -125,7 +136,7 @@ export function AdminApp() {
             />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Route>
-          <Route path="*" element={<Navigate to="/login" replace />} />
+          <Route path="*" element={<Navigate to={base === '/assessment/admin' ? '/assessment/admin/login' : '/admin/login'} replace />} />
         </Routes>
       </BrowserRouter>
     </AdminAuthProvider>
