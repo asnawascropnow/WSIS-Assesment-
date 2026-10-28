@@ -21,25 +21,30 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
     }
   }, [])
 
-  const loadIdentity = useCallback(async (hasSession: boolean) => {
+  const loadIdentity = useCallback(async (hasSession: boolean): Promise<AuthState> => {
     if (!hasSession) {
-      if (mounted.current) setState({ status: 'signed_out', identity: null, error: '' })
-      return
+      const nextState: AuthState = { status: 'signed_out', identity: null, error: '' }
+      if (mounted.current) setState(nextState)
+      return nextState
     }
     try {
       const identity = await adminApi<AdminIdentity>('me')
-      if (mounted.current) setState({ status: 'authenticated', identity, error: '' })
+      const nextState: AuthState = { status: 'authenticated', identity, error: '' }
+      if (mounted.current) setState(nextState)
+      return nextState
     } catch (error) {
-      if (!mounted.current) return
+      let nextState: AuthState
       if (error instanceof AdminApiError && error.status === 403) {
-        setState({ status: 'forbidden', identity: null, error: error.message })
+        nextState = { status: 'forbidden', identity: null, error: error.message }
       } else {
-        setState({
+        nextState = {
           status: 'error',
           identity: null,
           error: error instanceof Error ? error.message : 'Unable to load your administrator profile.',
-        })
+        }
       }
+      if (mounted.current) setState(nextState)
+      return nextState
     }
   }, [])
 
@@ -52,9 +57,13 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
   }, [loadIdentity])
 
   const signIn = useCallback(async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password })
     if (error) throw new Error(error.message)
-  }, [])
+    const identityState = await loadIdentity(Boolean(data.session))
+    if (identityState.status !== 'authenticated') {
+      throw new Error(identityState.error || 'Unable to verify administrator access.')
+    }
+  }, [loadIdentity])
 
   const signOut = useCallback(async () => {
     await supabase.auth.signOut()

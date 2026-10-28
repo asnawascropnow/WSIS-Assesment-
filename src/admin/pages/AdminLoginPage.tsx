@@ -1,11 +1,10 @@
 import { useState, type FormEvent } from 'react'
-import { Navigate, useNavigate } from 'react-router-dom'
+import { Navigate } from 'react-router-dom'
 import { LogIn, ShieldCheck } from 'lucide-react'
 import { useAdminAuth } from '../auth/useAdminAuth'
 
 export function AdminLoginPage() {
   const { signIn, signOut, status, error: authError } = useAdminAuth()
-  const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -19,7 +18,6 @@ export function AdminLoginPage() {
     setSubmitting(true)
     try {
       await signIn(email.trim(), password)
-      navigate('/admin', { replace: true })
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : 'Sign in failed.')
     } finally {
@@ -35,6 +33,12 @@ export function AdminLoginPage() {
         </span>
         <h1>Admin Sign In</h1>
         <p>Sign in with your administrator account to manage water assessment submissions.</p>
+
+        {status === 'error' && authError ? (
+          <p className="admin-state error" style={{ margin: '0 0 16px' }} role="alert">
+            {authError}
+          </p>
+        ) : null}
 
         {status === 'forbidden' ? (
           <div className="admin-state error" style={{ marginBottom: 16 }} role="alert">
