@@ -42,7 +42,6 @@ export function Helps() {
       <div className="wrap">
         <div className="helps__head">
           <div>
-            <span className="eyebrow">03 · How this helps you</span>
             <h2 id="helps-title" className="h2" data-lines>
               <span className="line">
                 <span>A Smarter Way to</span>

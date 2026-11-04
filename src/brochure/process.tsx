@@ -124,7 +124,6 @@ export function Process() {
 
         <div ref={trackRef} className="process__track">
           <div className="process__intro">
-            <span className="eyebrow">04 · How we do it</span>
             <h2 id="how-title" className="h2" data-lines style={{ fontSize: 'clamp(36px, 4.4vw, 68px)' }}>
               <span className="line">
                 <span>From Water Intelligence</span>

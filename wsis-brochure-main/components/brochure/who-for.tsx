@@ -88,7 +88,6 @@ export function WhoFor() {
       <div className="whofor__viewport">
         <div ref={trackRef} className="whofor__track">
           <div className="whofor__intro">
-            <span className="eyebrow">Who is it for</span>
             <h3 id="whofor-title" className="h2">
               Who Is It <span className="serif">For?</span>
             </h3>

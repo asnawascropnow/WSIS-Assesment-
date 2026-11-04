@@ -61,23 +61,99 @@ export function MotionRoot() {
         gsap.utils.toArray<HTMLElement>('[data-lines]').forEach((el) => {
           gsap.from(el.querySelectorAll('.line > span'), {
             yPercent: 110,
-            duration: 1.2,
+            duration: 1.0,
             ease: 'expo.out',
-            stagger: 0.09,
-            scrollTrigger: { trigger: el, start: 'top 85%' },
+            stagger: 0.08,
+            scrollTrigger: { trigger: el, start: 'top 85%', once: true },
           })
         })
 
         gsap.utils.toArray<HTMLElement>('[data-reveal]').forEach((el) => {
+          if (el.tagName === 'P') return
           gsap.from(el, {
-            y: 40,
+            y: 28,
             opacity: 0,
-            filter: 'blur(8px)',
-            duration: 1.1,
+            duration: 0.8,
             ease: 'power3.out',
             delay: Number(el.dataset.reveal) || 0,
-            scrollTrigger: { trigger: el, start: 'top 88%' },
+            scrollTrigger: { trigger: el, start: 'top 85%', once: true },
           })
+        })
+
+        // Split paragraph text nodes into word spans (.w) for typing animation
+        function splitTextIntoWords(el: HTMLElement) {
+          if (el.querySelector('.w, .lc')) return
+
+          const walk = (parent: Node) => {
+            const children = Array.from(parent.childNodes)
+            children.forEach((child) => {
+              if (child.nodeType === Node.TEXT_NODE) {
+                const text = child.textContent || ''
+                if (!text) return
+                const tokens = text.split(/(\s+)/)
+                const frag = document.createDocumentFragment()
+                tokens.forEach((token) => {
+                  if (!token) return
+                  if (/^\s+$/.test(token)) {
+                    frag.appendChild(document.createTextNode(' '))
+                  } else {
+                    const span = document.createElement('span')
+                    span.className = 'w'
+                    span.textContent = token
+                    frag.appendChild(span)
+                  }
+                })
+                child.replaceWith(frag)
+              } else if (child.nodeType === Node.ELEMENT_NODE) {
+                if ((child as HTMLElement).classList?.contains('w')) return
+                walk(child)
+              }
+            })
+          }
+
+          walk(el)
+        }
+
+        // Typing text reveal effect across each and every content paragraph when scrolled into section
+        const typingParagraphs = gsap.utils.toArray<HTMLElement>(
+          'p:not([data-letters]):not(.sr-only):not(.problem__stat):not(.target__num), .scrub'
+        ).filter((el) => {
+          if (el.closest('[data-hero-media], .sr-only')) {
+            return false
+          }
+          return true
+        })
+
+        typingParagraphs.forEach((p) => {
+          splitTextIntoWords(p)
+          const words = p.querySelectorAll('.w')
+          if (!words.length) return
+
+          const parentReveal = p.closest<HTMLElement>('[data-reveal]')
+          const revealDelay = parentReveal && parentReveal !== p 
+            ? (Number(parentReveal.dataset.reveal) || 0) + 0.15 
+            : 0
+
+          gsap.fromTo(
+            words,
+            { opacity: 0, y: 4 },
+            {
+              opacity: 1,
+              y: 0,
+              duration: 0.3,
+              delay: revealDelay,
+              stagger: {
+                each: 0.032, // Typing in left to right
+                from: 'start',
+              },
+              ease: 'power2.out',
+              scrollTrigger: {
+                trigger: parentReveal ?? p,
+                start: 'top 85%',
+                once: true,
+              },
+            }
+          )
         })
 
         gsap.utils.toArray<HTMLElement>('[data-letters]').forEach((el) => {
@@ -86,10 +162,10 @@ export function MotionRoot() {
             { yPercent: 115 },
             {
               yPercent: 0,
-              duration: 1,
+              duration: 0.8,
               ease: 'expo.out',
-              stagger: { amount: 1.1 },
-              scrollTrigger: { trigger: el, start: 'top 82%' },
+              stagger: { amount: 0.6, from: 'start' },
+              scrollTrigger: { trigger: el, start: 'top 85%', once: true },
             },
           )
         })
@@ -103,19 +179,6 @@ export function MotionRoot() {
               xPercent: -amount,
               ease: 'none',
               scrollTrigger: { trigger: el, start: 'top bottom', end: 'bottom top', scrub: true },
-            },
-          )
-        })
-
-        gsap.utils.toArray<HTMLElement>('[data-scrub-words]').forEach((el) => {
-          gsap.fromTo(
-            el.querySelectorAll('.w'),
-            { opacity: 0.16 },
-            {
-              opacity: 1,
-              stagger: 0.05,
-              ease: 'none',
-              scrollTrigger: { trigger: el, start: 'top 78%', end: 'bottom 40%', scrub: true },
             },
           )
         })
@@ -136,9 +199,9 @@ export function MotionRoot() {
         gsap.utils.toArray<HTMLElement>('[data-clip]').forEach((el) => {
           gsap.from(el, {
             clipPath: 'inset(100% 0% 0% 0% round 44px)',
-            duration: 1.5,
+            duration: 1.2,
             ease: 'expo.out',
-            scrollTrigger: { trigger: el, start: 'top 85%' },
+            scrollTrigger: { trigger: el, start: 'top 85%', once: true },
           })
         })
 
@@ -161,8 +224,9 @@ export function MotionRoot() {
             { strokeDasharray: 1, strokeDashoffset: 1 },
             {
               strokeDashoffset: 0,
-              ease: 'none',
-              scrollTrigger: { trigger: el.closest('svg')?.parentElement ?? el, start: 'top 80%', end: 'bottom 55%', scrub: true },
+              duration: 1.2,
+              ease: 'power2.out',
+              scrollTrigger: { trigger: el.closest('svg')?.parentElement ?? el, start: 'top 90%', once: true },
             },
           )
         })
@@ -170,9 +234,9 @@ export function MotionRoot() {
         gsap.utils.toArray<HTMLElement>('[data-grow]').forEach((el) => {
           gsap.from(el, {
             scaleX: 0,
-            duration: 1.6,
+            duration: 1.2,
             ease: 'expo.out',
-            scrollTrigger: { trigger: el, start: 'top 85%' },
+            scrollTrigger: { trigger: el, start: 'top 85%', once: true },
           })
         })
 

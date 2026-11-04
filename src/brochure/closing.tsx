@@ -11,7 +11,6 @@ export function Closing() {
       </div>
       <SectionBand title="Get In Touch" className="band--over" />
       <div className="wrap contact__inner">
-        <span className="eyebrow">08 · Contact</span>
         <div className="contact__grid">
           <div>
             <h2 id="contact-title" className="display contact__title" data-lines>
@@ -71,14 +70,6 @@ export function Closing() {
               </div>
             </dl>
           </div>
-        </div>
-
-        <div className="contact__statement" data-reveal>
-          <p className="contact__partners">CropNow × ALTTECH Foundation × Akash Bhumi</p>
-          <p className="body">
-            Connecting resource intelligence with practical water solutions to help organisations build a more
-            water-resilient future.
-          </p>
         </div>
       </div>
 

@@ -10,7 +10,6 @@ import { Process } from './process'
 import { Infographic } from './infographic'
 import { Stages } from './stages'
 import { Solutions } from './solutions'
-import { Collaboration } from './collaboration'
 import { Projects } from './projects'
 import { Clients } from './clients'
 import { Team } from './team'
@@ -50,7 +49,6 @@ export default function BrochurePage() {
           <Infographic />
           <Stages />
           <Solutions />
-          <Collaboration />
         </section>
         <Projects />
         <Clients />

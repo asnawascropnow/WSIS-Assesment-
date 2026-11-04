@@ -72,7 +72,6 @@ export function Problem() {
     <section id="the-problem" className="problem" data-tone="dark" aria-labelledby="problem-title">
       <div className="wrap">
         <div className="problem__head">
-          <span className="eyebrow">The problem you live with</span>
           <h2 id="problem-title" className="h2 problem__title" data-lines>
             <span className="line">
               <span>Tankers on speed dial.</span>
