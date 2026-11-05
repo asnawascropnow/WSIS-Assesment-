@@ -16,13 +16,16 @@ export function Introduction() {
           </p>
 
           <div className="intro__head">
-            <h2 id="intro-title" className="h2" data-lines>
+            <h2 id="intro-title" className="h2 intro__heading" data-lines>
               <span className="line">
-                <span>Your Water. Your Resources.</span>
+                <span>Your Water.</span>
+              </span>
+              <span className="line">
+                <span>Your Resources.</span>
               </span>
               <span className="line">
                 <span>
-                  Your <span className="serif">Future.</span>
+                  Your <span className="serif intro__future">Future.</span>
                 </span>
               </span>
             </h2>

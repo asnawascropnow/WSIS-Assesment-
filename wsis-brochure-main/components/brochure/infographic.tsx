@@ -1,30 +1,34 @@
+import { useEffect, useState } from 'react'
 import { ScrubText, SectionBand } from './motion-root'
-
-const CONVENTIONAL = ['Municipal grid', 'Borewells', 'Tankers']
 
 const SYSTEM = [
   {
     title: 'Alternative sources',
+    stage: 'Catchment',
     detail: 'Rooftop water · Surface water · Suitable subsurface water',
     icon: 'rain',
   },
   {
     title: 'Collection & storage',
+    stage: 'Storage',
     detail: 'Sized according to geography, climate, and demand',
     icon: 'tank',
   },
   {
     title: 'Treatment',
+    stage: 'Purification',
     detail: 'Appropriate to the intended use',
     icon: 'treat',
   },
   {
     title: 'Distribution',
+    stage: 'Efficiency',
     detail: 'Optimised, with water-efficient fixtures',
     icon: 'tap',
   },
   {
     title: 'Reuse',
+    stage: 'Circular Loop',
     detail: 'Gardening, flushing, cooling, and other appropriate non-potable uses',
     icon: 'loop',
   },
@@ -32,12 +36,12 @@ const SYSTEM = [
 
 function NodeIcon({ name }: { name: (typeof SYSTEM)[number]['icon'] }) {
   const common = {
-    width: 28,
-    height: 28,
+    width: 24,
+    height: 24,
     viewBox: '0 0 24 24',
     fill: 'none',
     stroke: 'currentColor',
-    strokeWidth: 1.5,
+    strokeWidth: 1.6,
     strokeLinecap: 'round' as const,
     strokeLinejoin: 'round' as const,
     'aria-hidden': true,
@@ -85,6 +89,21 @@ function NodeIcon({ name }: { name: (typeof SYSTEM)[number]['icon'] }) {
 }
 
 export function Infographic() {
+  const [modalOpen, setModalOpen] = useState(false)
+
+  useEffect(() => {
+    if (!modalOpen) return
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setModalOpen(false)
+    }
+    window.addEventListener('keydown', onKeyDown)
+    document.body.style.overflow = 'hidden'
+    return () => {
+      window.removeEventListener('keydown', onKeyDown)
+      document.body.style.overflow = ''
+    }
+  }, [modalOpen])
+
   return (
     <section
       id="water-system"
@@ -115,57 +134,97 @@ export function Infographic() {
         </div>
 
         <div className="system__board" role="group" aria-label="Water system diagram">
-          <div className="lane lane--conventional" data-reveal>
-            <span className="lane__label">Conventional supply</span>
-            <ul className="lane__sources">
-              {CONVENTIONAL.map((s) => (
-                <li key={s}>{s}</li>
-              ))}
-            </ul>
-            <span className="lane__arrow" aria-hidden="true" />
-            <span className="lane__sink">Purchased water</span>
+          {/* LEFT: Infographic Image Showcase */}
+          <div
+            className="lane lane--infographic"
+            data-reveal
+            onClick={() => setModalOpen(true)}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault()
+                setModalOpen(true)
+              }
+            }}
+            aria-label="Click to enlarge water independence infographic"
+          >
+            <button
+              type="button"
+              className="infographic-preview__enlarge"
+              onClick={(e) => {
+                e.stopPropagation()
+                setModalOpen(true)
+              }}
+              aria-label="Enlarge infographic overview"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <polyline points="15 3 21 3 21 9" />
+                <polyline points="9 21 3 21 3 15" />
+                <line x1="21" y1="3" x2="14" y2="10" />
+                <line x1="3" y1="21" x2="10" y2="14" />
+              </svg>
+              <span>Enlarge</span>
+            </button>
+            <img
+              src="/images/water-system-infographic.jpg"
+              alt="3D isometric infographic showing water independence lifecycle: external supply vs. on-site catchment, treatment, storage, distribution, and reuse"
+              className="infographic-preview__image"
+              loading="lazy"
+            />
           </div>
 
-          <div className="lane lane--system">
-            <span className="lane__label">Site-specific system</span>
-            <div className="flow">
-              <svg className="flow__wire" viewBox="0 0 1000 40" preserveAspectRatio="none" aria-hidden="true">
-                <path
-                  d="M20 20 H980"
-                  pathLength={1}
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  vectorEffect="non-scaling-stroke"
-                  data-draw
-                />
-              </svg>
-              <ol className="flow__nodes">
+          {/* RIGHT: Site-Specific System (Vertical Flow) */}
+          <div className="lane lane--system" data-reveal="0.1">
+            <div className="vflow">
+              <ol className="vflow__list">
                 {SYSTEM.map((n, i) => (
-                  <li key={n.title} className="flow__node" data-reveal={i * 0.09}>
-                    <span className="flow__icon">
-                      <NodeIcon name={n.icon} />
-                    </span>
-                    <span className="flow__step">{`0${i + 1}`}</span>
-                    <h4>{n.title}</h4>
-                    <p>{n.detail}</p>
+                  <li
+                    key={n.title}
+                    className={`vflow__item ${i === 4 ? 'vflow__item--loop' : ''}`}
+                    data-reveal={i * 0.08}
+                  >
+                    <div className="vflow__marker-col">
+                      <span className="vflow__icon">
+                        <NodeIcon name={n.icon} />
+                      </span>
+                      {i < SYSTEM.length - 1 && (
+                        <div className="vflow__connector" aria-hidden="true">
+                          <span className="vflow__connector-line" />
+                          <span className="vflow__connector-arrow" />
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="vflow__body">
+                      <div className="vflow__header">
+                        <span className="vflow__step">{`Stage 0${i + 1}`}</span>
+                        <span className="vflow__tag">{n.stage}</span>
+                      </div>
+                      <h5 className="vflow__name">{n.title}</h5>
+                      <p className="vflow__detail">{n.detail}</p>
+                    </div>
                   </li>
                 ))}
               </ol>
-              <svg className="flow__loop" viewBox="0 0 1000 80" preserveAspectRatio="none" aria-hidden="true">
-                <path
-                  d="M900 4 C 900 70, 520 76, 500 40 S 500 4, 500 4"
-                  pathLength={1}
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeDasharray="0.012 0.012"
-                  vectorEffect="non-scaling-stroke"
-                />
-              </svg>
+
+              <div className="vflow__return">
+                <div className="vflow__return-icon" aria-hidden="true">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+                    <path d="M3 3v5h5" />
+                    <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16" />
+                    <path d="M16 21h5v-5" />
+                  </svg>
+                </div>
+                <div className="vflow__return-text">
+                  <strong>Circular Cycle:</strong> Reused water directly offsets conventional intake, returning recycled volume back into non-potable service.
+                </div>
+              </div>
             </div>
           </div>
 
+          {/* TARGET BANNER */}
           <div className="target" data-reveal>
             <div className="target__copy">
               <span className="target__tag">Illustrative target</span>
@@ -192,6 +251,47 @@ export function Infographic() {
           text="It illustrates the potential to reduce purchased-water dependence by making better use of local resources and water already used on site."
         />
       </div>
+
+      {/* LIGHTBOX MODAL */}
+      {modalOpen && (
+        <div
+          className="infographic-modal"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Full size infographic"
+        >
+          <div
+            className="infographic-modal__backdrop"
+            onClick={() => setModalOpen(false)}
+          />
+          <div className="infographic-modal__dialog">
+            <div className="infographic-modal__bar">
+              <div className="infographic-modal__title">
+                <strong>Water Independence Blueprint</strong>
+                <span>From external dependence to circular independence</span>
+              </div>
+              <button
+                type="button"
+                className="infographic-modal__close"
+                onClick={() => setModalOpen(false)}
+                aria-label="Close modal"
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              </button>
+            </div>
+            <div className="infographic-modal__content">
+              <img
+                src="/images/water-system-infographic.jpg"
+                alt="Detailed full size diagram of water independence system"
+                className="infographic-modal__image"
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   )
 }
