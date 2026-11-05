@@ -90,11 +90,15 @@ function NodeIcon({ name }: { name: (typeof SYSTEM)[number]['icon'] }) {
 
 export function Infographic() {
   const [modalOpen, setModalOpen] = useState(false)
+  const [zoomLevel, setZoomLevel] = useState<'fit' | 'actual' | 'large'>('actual')
 
   useEffect(() => {
     if (!modalOpen) return
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') setModalOpen(false)
+      if (e.key === '+' || e.key === '=') setZoomLevel((z) => (z === 'fit' ? 'actual' : 'large'))
+      if (e.key === '-' || e.key === '_') setZoomLevel((z) => (z === 'large' ? 'actual' : 'fit'))
+      if (e.key === '0') setZoomLevel('actual')
     }
     window.addEventListener('keydown', onKeyDown)
     document.body.style.overflow = 'hidden'
@@ -167,7 +171,7 @@ export function Infographic() {
               <span>Enlarge</span>
             </button>
             <img
-              src="/images/water-system-infographic.jpg"
+              src="/images/water-system-infographic.png"
               alt="3D isometric infographic showing water independence lifecycle: external supply vs. on-site catchment, treatment, storage, distribution, and reuse"
               className="infographic-preview__image"
               loading="lazy"
@@ -268,25 +272,75 @@ export function Infographic() {
             <div className="infographic-modal__bar">
               <div className="infographic-modal__title">
                 <strong>Water Independence Blueprint</strong>
-                <span>From external dependence to circular independence</span>
+                <span>From external dependence to circular independence · High Resolution</span>
               </div>
-              <button
-                type="button"
-                className="infographic-modal__close"
-                onClick={() => setModalOpen(false)}
-                aria-label="Close modal"
-              >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <line x1="18" y1="6" x2="6" y2="18" />
-                  <line x1="6" y1="6" x2="18" y2="18" />
-                </svg>
-              </button>
+              <div className="infographic-modal__actions">
+                <div className="infographic-modal__zoom-group" role="group" aria-label="Zoom controls">
+                  <button
+                    type="button"
+                    className={`infographic-modal__btn ${zoomLevel === 'fit' ? 'infographic-modal__btn--active' : ''}`}
+                    onClick={() => setZoomLevel('fit')}
+                    title="Fit whole diagram inside window"
+                  >
+                    Fit Screen
+                  </button>
+                  <button
+                    type="button"
+                    className={`infographic-modal__btn ${zoomLevel === 'actual' ? 'infographic-modal__btn--active' : ''}`}
+                    onClick={() => setZoomLevel('actual')}
+                    title="View at readable 100% resolution"
+                  >
+                    100% Readable
+                  </button>
+                  <button
+                    type="button"
+                    className={`infographic-modal__btn ${zoomLevel === 'large' ? 'infographic-modal__btn--active' : ''}`}
+                    onClick={() => setZoomLevel('large')}
+                    title="Zoom in 150%"
+                  >
+                    + Zoom In
+                  </button>
+                </div>
+
+                <a
+                  href="/images/water-system-infographic.png"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="infographic-modal__btn infographic-modal__btn--link"
+                  title="Open uncompressed blueprint in a new browser tab"
+                >
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                    <polyline points="15 3 21 3 21 9" />
+                    <line x1="10" y1="14" x2="21" y2="3" />
+                  </svg>
+                  <span>Full HD (2.4MB)</span>
+                </a>
+
+                <button
+                  type="button"
+                  className="infographic-modal__close"
+                  onClick={() => setModalOpen(false)}
+                  aria-label="Close modal"
+                >
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                  </svg>
+                </button>
+              </div>
             </div>
+
             <div className="infographic-modal__content">
+              <div className="infographic-modal__hint" aria-hidden="true">
+                <span>💡 Click image to toggle zoom · Scroll vertically to read all 6 stages</span>
+              </div>
               <img
-                src="/images/water-system-infographic.jpg"
+                src="/images/water-system-infographic.png"
                 alt="Detailed full size diagram of water independence system"
-                className="infographic-modal__image"
+                className={`infographic-modal__image infographic-modal__image--${zoomLevel}`}
+                onClick={() => setZoomLevel((z) => (z === 'fit' ? 'actual' : z === 'actual' ? 'large' : 'fit'))}
+                title="Click to toggle zoom"
               />
             </div>
           </div>
